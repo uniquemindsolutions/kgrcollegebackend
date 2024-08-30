@@ -1,0 +1,79 @@
+{% extends 'Home_Page/Homepage.html' %}
+{% block content %}
+{% load static %}
+<div class="d-flex justify-content-between mt-3">
+  <h4>Home Page Banners</h4>
+  <a class="btn btn-primary" href="{% url 'banner_add' %}">Add Banner</a>
+</div>
+
+<table class="table mt-4">
+  <thead>
+    <tr>
+      <th>ID</th>
+      <th>Type</th>
+      <th>Sub Type</th>
+      <th>Image</th>
+      <th>Format</th>
+      <th>File Size</th>
+      <th>Uploaded At</th>
+      <th>Actions</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for banner in banners %}
+    <tr>
+      <td>{{ forloop.counter }}</td>
+      <td>{{ banner.type }}</td>
+      <td>{{ banner.sub_type }}</td>
+      <td><img src="{{ banner.image.url }}" alt="Banner" width="70px"></td>
+      <td>{{ banner.format }}</td>
+      <td>{{ banner.file_size }}KB</td>
+      <td>{{ banner.uploaded_at }}</td>
+      <td>
+        <a class="btn btn-sm btn-warning" href="{% url 'banner_edit' banner.pk %}" title="Edit">
+          <i class="fas fa-edit"></i>
+        </a>
+        <a class="btn btn-sm btn-danger" href="#" title="Delete" data-toggle="modal" data-target="#deleteModal"
+          data-url="{% url 'banner_delete' banner.pk %}">
+          <i class="fas fa-trash-alt"></i>
+        </a>
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+<div class="modal fade" id="deleteModal" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel"
+  aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="deleteModalLabel">Banner</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        Are you sure you want to delete this banner?
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+        <a type="button" class="btn btn-danger" id="confirmDeleteBtn">Delete</a>
+      </div>
+    </div>
+  </div>
+</div>
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    // Attach event listener to all delete buttons
+    $('#deleteModal').on('show.bs.modal', function (event) {
+      var button = $(event.relatedTarget); // Button that triggered the modal
+      var deleteUrl = button.data('url'); // Extract URL from data-* attribute
+
+      // Update the modal's confirm delete button with the URL
+      $('#confirmDeleteBtn').attr('href', deleteUrl);
+    });
+  });
+</script>
+
+{% endblock %}

@@ -1,0 +1,18 @@
+{% extends 'Faculty_Page/Faculty_Page.html' %}
+{% block content %}
+<div class="row">
+    <div class="col-lg-6 offset-lg-3 mt-4">
+        <div class="card">
+            <div class="card-body">
+                <h4>{% if form.instance.pk %}Edit{% else %}Add{% endif %} MBA Faculty</h4>
+                <hr>
+                <form method="post">
+                    {% csrf_token %}
+                    {{ form.as_p }}
+                    <button type="submit" class="btn btn-primary">Submit</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

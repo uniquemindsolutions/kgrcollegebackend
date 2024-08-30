@@ -1,0 +1,132 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>College Dashboard</title>
+  <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    /* new css */
+    .main-section {
+      display: flex;
+      height: 100vh;
+    }
+
+    .sideMenu {
+      width: 200px;
+      color: #fff;
+      padding: 20px;
+      box-sizing: border-box;
+      background-color: purple;
+      height: 100vh;
+    }
+
+    .sideMenu a {
+      color: #fff;
+      /* White text color */
+      text-decoration: none;
+      /* Remove underline */
+      display: block;
+      padding: 10px 15px;
+      border-radius: 4px;
+      font-size: 16px;
+    }
+
+    .sideMenu a:hover {
+      background-color: #495057;
+      color: #f8f9fa;
+    }
+
+    .right-content {
+      width: calc(100% - 200px);
+      padding: 20px;
+      box-sizing: border-box;
+      background-color: #f4f4f4;
+      overflow-y: auto;
+    }
+  </style>
+</head>
+
+<body>
+  {% if user.is_authenticated %}
+  <nav class="navbar navbar-expand-lg bg-primary d-flex justify-content-between">
+    <a class="navbar-brand" href="#">
+      <img src="{% static 'images/logo.png' %}" alt="" width="60" class="img-fluid">
+    </a>
+
+    <button class="btn ">
+      <a class="nav-link btn btn-danger float-end ms-auto" href="{% url 'logout' %}">Logout</a>
+    </button>
+  </nav>
+
+  <div class="main-section">
+    <div class="sideMenu">
+      <ul class="list-unstyled">
+        <li><a href="{% url 'banner_list' %}">Home</a></li>
+        <li><a href="{% url 'faculty_mba_list' %}">Faculty</a></li>
+        <li><a href="{% url 'gallery_images_list' %}">Gallery</a></li>
+        <li><a href="{% url 'alumni_list' %}">Alumni</a></li>
+        <li><a href="{% url 'events_list' %}">Events and Activites</a></li>
+        <li><a href="{% url 'committees_list' %}">Committees</a></li>
+      </ul>
+    </div>
+
+    <div class="right-content">
+      <nav class="navbar navbar-expand-lg bg-light">
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+          <ul class="navbar-nav mb-2 mb-lg-0 me-2">
+            <li class="nav-item">
+              <a class="btn btn-warning  mr-2" id="banner-link" href="{% url 'banner_list' %}">Banner</a>
+            </li>
+            <li class="nav-item">
+              <a class="btn btn-warning mr-2" id="news-link" href="{% url 'college_update_list' %}">College Updates</a>
+            </li>
+            <li class="nav-item">
+              <a class="btn btn-warning mr-2" id="news-link" href="{% url 'student_count_list' %}">Student Count</a>
+            </li>
+            <li class="nav-item">
+              <a class="btn btn-warning mr-2" id="news-link" href="{% url 'faculty_count_list' %}">Faculty Count</a>
+            </li>
+            <li class="nav-item">
+              <a class="btn btn-warning mr-2" id="news-link" href="{% url 'programs_count_list' %}">Programs Count</a>
+            </li>
+            <li class="nav-item">
+              <a class="btn btn-warning mr-2" id="news-link" href="{% url 'student_form_list' %}">Student Form</a>
+            </li>
+          </ul>
+        </div>
+
+      </nav>
+      <div class="">
+        {% block content %}
+        {% endblock %}
+      </div>
+    </div>
+  </div>
+  {% else %}
+  {% endif %}
+
+  <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      var path = window.location.pathname;
+
+      if (path.includes('banners')) {
+        document.getElementById('banner-link').classList.add('active');
+      } else if (path.includes('photos')) {
+        document.getElementById('photos-link').classList.add('active');
+      } else if (path.includes('videos')) {
+        document.getElementById('videos-link').classList.add('active');
+      } else if (path.includes('news')) {
+        document.getElementById('news-link').classList.add('active');
+      }
+    });
+
+  </script>
+</body>
+</html>
