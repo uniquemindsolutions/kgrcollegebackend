@@ -2,9 +2,15 @@
 {% block content %}
 <div class="d-flex justify-content-between mt-3">
     <h4>Faculty Page MBA Faculty List</h4>
-    <a class="btn btn-primary" href="{% url 'faculty_mba_create' %}">Add New Faculty</a>
+    <div>
+        <!-- Bulk Upload Button -->
+        <button class="btn btn-success" data-toggle="modal" data-target="#bulkUploadModal">Bulk Upload</button>
+        <a class="btn btn-primary" href="{% url 'faculty_mba_create' %}">Add New Faculty</a>
+    </div>
 </div>
-<table class="table table-striped mt-3">
+
+<!-- Faculty List -->
+<table class="table table-striped mt-4">
     <thead>
         <tr>
             <th>Serial Number</th>
@@ -36,7 +42,37 @@
         {% endfor %}
     </tbody>
 </table>
+
+<!-- Bulk Upload Modal -->
+<div class="modal fade" id="bulkUploadModal" tabindex="-1" role="dialog" aria-labelledby="bulkUploadModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="bulkUploadModalLabel">Bulk Upload MBA Faculty</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <!-- Bulk Upload Form -->
+                <form method="post" enctype="multipart/form-data" action="{% url 'bulk_upload_mba_faculty' %}">
+                    {% csrf_token %}
+                    {{ bulk_form.as_p }}
+                    <button type="submit" class="btn btn-primary">Upload Excel Sheet</button>
+                </form>
+                <!-- Error Feedback -->
+                {% if form.errors %}
+                    <div class="alert alert-danger mt-3">
+                        {{ form.errors }}
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
 </div>
+
+
+<!-- Delete Confirmation Modal -->
 <div class="modal fade" id="deleteModal" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel"
     aria-hidden="true">
     <div class="modal-dialog" role="document">
@@ -44,13 +80,13 @@
             <form method="POST" id="deleteForm">
                 {% csrf_token %}
                 <div class="modal-header">
-                    <h5 class="modal-title" id="deleteModalLabel">Delete College Update</h5>
+                    <h5 class="modal-title" id="deleteModalLabel">Delete MBA Faculty</h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
                 <div class="modal-body">
-                    Are you sure you want to delete this MBA Faculty?
+                    Are you sure you want to delete this faculty member?
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
@@ -71,6 +107,5 @@
             $('#deleteForm').attr('action', deleteUrl);
         });
     });
-
 </script>
 {% endblock %}

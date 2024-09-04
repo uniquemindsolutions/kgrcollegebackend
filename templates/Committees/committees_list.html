@@ -9,6 +9,7 @@
     <thead>
         <tr>
             <th class="text-center">ID</th>
+            <th class="text-center">Name</th>
             <th class="text-center">File</th>
             <th class="text-center">Actions</th>
         </tr>
@@ -17,6 +18,7 @@
         {% for file in files_list %}
         <tr class="text-center">
             <td>{{ forloop.counter }}</td>
+            <td>{{file.name}}</td>
             <td>
                 {% if file.file %}
                 <a href="{{ file.file.url }}">{{ file.file.name }}</a>

@@ -117,7 +117,6 @@ class GalleryVideos(models.Model):
 
 
 class Faculty_Mba(models.Model):
-    slno = models.IntegerField()
     name = models.CharField(max_length=50)
     designation = models.CharField(max_length=70)
     qualification = models.CharField(max_length=70)
@@ -125,7 +124,6 @@ class Faculty_Mba(models.Model):
 
 
 class Faculty_Pharamacy(models.Model):
-    slno = models.IntegerField()
     name = models.CharField(max_length=50)
     designation = models.CharField(max_length=70)
     qualification = models.CharField(max_length=70)
@@ -193,5 +191,6 @@ class StudentOnlineRegistration(models.Model):
         return self.student_name
 
 class Committees(models.Model):
+    name = models.CharField(max_length=50)
     file = models.FileField(upload_to='committees/')
 

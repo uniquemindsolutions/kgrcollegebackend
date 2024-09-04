@@ -59,12 +59,14 @@ urlpatterns = [
 
     path('faculty/mba/', faculty_mba_list_view, name='faculty_mba_list'),
     path('faculty/mba/add/', faculty_mba_create_view, name='faculty_mba_create'),
+    path('faculty/mba/bulk-upload/', bulk_upload_mba_faculty, name='bulk_upload_mba_faculty'),
     path('faculty/mba/edit/<int:id>/', faculty_mba_edit_view, name='faculty_mba_edit'),
     path('faculty/mba/delete/<int:id>/',faculty_mba_delete_view, name='faculty_mba_delete'),
 
     # URLs for Faculty_Pharamacy
     path('faculty/pharmacy/', faculty_pharmacy_list_view, name='faculty_pharmacy_list'),
     path('faculty/pharmacy/add/', faculty_pharmacy_create_view, name='faculty_pharmacy_create'),
+    path('faculty/pharamacy/bulk-upload/', bulk_upload_pharamacy_faculty, name='bulk_upload_pharamcy_faculty'),
     path('faculty/pharmacy/edit/<int:id>/', faculty_pharmacy_edit_view, name='faculty_pharmacy_edit'),
     path('faculty/pharmacy/delete/<int:id>/',faculty_pharmacy_delete_view, name='faculty_pharmacy_delete'),
 

@@ -54,12 +54,13 @@ class GalleryVideosForm(forms.ModelForm):
 class FacultyMBAForm(forms.ModelForm):
     class Meta:
         model = Faculty_Mba
-        fields = ['slno', 'name', 'designation', 'qualification', 'experience_teaching']
+        fields = ['name', 'designation', 'qualification', 'experience_teaching']
+        ordering = ['id']  
 
 class FacultyPharmacyForm(forms.ModelForm):
     class Meta:
         model = Faculty_Pharamacy
-        fields = ['slno', 'name', 'designation', 'qualification', 'experience_teaching']
+        fields = ['name', 'designation', 'qualification', 'experience_teaching']
 
 class AlumniForm(forms.ModelForm):
     class Meta:
@@ -79,8 +80,10 @@ class StudentOnlineRegistrationForm(forms.ModelForm):
 class CommitteesForm(forms.ModelForm):
     class Meta:
         model = Committees
-        fields = ['file']
+        fields = ['name','file']
 
+class BulkFacultyUploadForm(forms.Form):
+    excel_file = forms.FileField()
 
 class CustomUserCreationForm(UserCreationForm):
     email = forms.EmailField(required=True)
