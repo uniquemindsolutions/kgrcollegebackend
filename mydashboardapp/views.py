@@ -17,6 +17,12 @@ from django.conf import settings
 import json
 from django.core.mail import EmailMessage
 from django_filters.rest_framework import DjangoFilterBackend
+import pandas as pd
+import openpyxl
+from django.http import HttpResponse
+from django.http import FileResponse
+
+
 
 def home(request):
     if request.method == 'POST':
@@ -317,6 +323,39 @@ def faculty_mba_create_view(request):
     return render(request, 'Faculty_Page/faculty_mba_form.html', {'form': form})
 
 @csrf_exempt
+def bulk_upload_mba_faculty(request):
+    bulk_form = BulkFacultyUploadForm(request.POST, request.FILES or None)
+
+    if request.method == 'POST' and bulk_form.is_valid():
+        excel_file = request.FILES['excel_file']
+
+        try:
+            # Load the Excel file
+            wb = openpyxl.load_workbook(excel_file)
+            sheet = wb.active
+
+            # Iterate through the rows in the sheet and create Faculty_MBA objects
+            for row in sheet.iter_rows(min_row=2, values_only=True):
+                name, designation, qualification, experience_teaching = row
+
+                # Ensure slno is not null
+                Faculty_Mba.objects.create(
+                    name=name,
+                    designation=designation,
+                    qualification=qualification,
+                    experience_teaching=experience_teaching
+                )
+
+            messages.success(request, "MBA Faculty members uploaded successfully!")
+            return redirect('faculty_mba_list')
+        except Exception as e:
+            messages.error(request, f"Error during file upload: {e}")
+
+    return render(request, 'Faculty_Page/bulk_upload_mba_faculty.html', {
+        'bulk_form': bulk_form
+    })
+
+@csrf_exempt
 def faculty_mba_edit_view(request, id):
     faculty = get_object_or_404(Faculty_Mba, id=id)
     if request.method == 'POST':
@@ -352,6 +391,39 @@ def faculty_pharmacy_create_view(request):
     else:
         form = FacultyPharmacyForm()
     return render(request, 'Faculty_Page/faculty_pharmacy_form.html', {'form': form})
+
+@csrf_exempt
+def bulk_upload_pharamacy_faculty(request):
+    bulk_form = BulkFacultyUploadForm(request.POST, request.FILES or None)
+
+    if request.method == 'POST' and bulk_form.is_valid():
+        excel_file = request.FILES['excel_file']
+
+        try:
+            # Load the Excel file
+            wb = openpyxl.load_workbook(excel_file)
+            sheet = wb.active
+
+            # Iterate through the rows in the sheet and create Faculty_MBA objects
+            for row in sheet.iter_rows(min_row=2, values_only=True):
+                name, designation, qualification, experience_teaching = row
+
+                # Ensure slno is not null
+                Faculty_Pharamacy.objects.create(
+                    name=name,
+                    designation=designation,
+                    qualification=qualification,
+                    experience_teaching=experience_teaching
+                )
+
+            messages.success(request, "Pharamacy Faculty members uploaded successfully!")
+            return redirect('faculty_mba_list')
+        except Exception as e:
+            messages.error(request, f"Error during file upload: {e}")
+
+    return render(request, 'Faculty_Page/bulk_upload_pharamacy_faculty.html', {
+        'bulk_form': bulk_form
+    })
 
 @csrf_exempt
 def faculty_pharmacy_edit_view(request, id):

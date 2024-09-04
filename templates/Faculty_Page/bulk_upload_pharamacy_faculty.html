@@ -1,0 +1,32 @@
+{% extends 'Faculty_Page/Faculty_Page.html' %}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-6 offset-lg-3 mt-4">
+        <div class="card">
+            <div class="card-body">
+                <h4>Bulk Upload Pharamacy Faculty via Excel</h4>
+                <hr>
+
+                <!-- Bulk Upload Form -->
+                <form method="post" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    {{ bulk_form.as_p }}
+                    <button type="submit" class="btn btn-primary">Upload Excel Sheet</button>
+                </form>
+
+                <!-- Error Feedback -->
+                {% if messages %}
+                <div class="mt-3">
+                    {% for message in messages %}
+                        <div class="alert {% if message.tags %}alert-{{ message.tags }}{% endif %}">
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
