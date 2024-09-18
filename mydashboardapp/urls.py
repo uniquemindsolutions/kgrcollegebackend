@@ -20,6 +20,7 @@ router.register(r'gallery-videos',GalleryVideosViewSet,basename='gallery-videos'
 router.register(r'alumni',AlumniViewSet,basename='alumni'),
 router.register(r'eventsandactivites',EventsandActivitesViewSet,basename='eventsandactivites')
 router.register(r'committees',CommitteesViewSet,basename='committees'),
+router.register(r'syllabus',SyllabusViewSet,basename='syllabus'),
 urlpatterns = [
     path('', include(router.urls)),
     path('', home, name='home'),
@@ -96,6 +97,11 @@ urlpatterns = [
     path('upload/', committees_view, name='committees_file_upload'),
     path('files/', committees_list_view, name='committees_list'),
     path('files/<int:pk>/edit/', committees_update_view, name='committees_file_update'),
-    path('files/<int:pk>/delete/', committees_delete_view, name='committees_file_delete')
+    path('files/<int:pk>/delete/', committees_delete_view, name='committees_file_delete'),
+
+    path('syllabusupload/', syllabus_view, name='syllabus_file_upload'),
+    path('syllabusfiles/', syllabus_list_view, name='syllabus_list'),
+    path('syllabusfiles/<int:pk>/edit/', syllabus_update_view, name='syllabus_file_update'),
+    path('syllabusfiles/<int:pk>/delete/', syllabus_delete_view, name='syllabus_file_delete')
     
 ]+  static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
