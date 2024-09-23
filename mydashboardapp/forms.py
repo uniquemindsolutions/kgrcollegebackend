@@ -44,12 +44,12 @@ class StudentFormForm(forms.ModelForm):
 class GalleryImagesForm(forms.ModelForm):
     class Meta:
         model = GalleryImages
-        fields = ['type','sub_type','image','heading']
+        fields = ['type','sub_type','image']
 
 class GalleryVideosForm(forms.ModelForm):
     class Meta:
         model = GalleryVideos
-        fields = ['type','sub_type','video','heading']
+        fields = ['type','sub_type','video']
 
 class FacultyMBAForm(forms.ModelForm):
     class Meta:
@@ -80,6 +80,11 @@ class StudentOnlineRegistrationForm(forms.ModelForm):
 class CommitteesForm(forms.ModelForm):
     class Meta:
         model = Committees
+        fields = ['name','file']
+
+class SyllabusForm(forms.ModelForm):
+    class Meta:
+        model = Syllabus
         fields = ['name','file']
 
 class BulkFacultyUploadForm(forms.Form):

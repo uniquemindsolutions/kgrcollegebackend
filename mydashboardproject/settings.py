@@ -39,7 +39,8 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'mydashboardapp',
     'rest_framework',
-    'corsheaders'
+    'corsheaders',
+    'rest_framework.authtoken',
 ]
 
 MIDDLEWARE = [
@@ -129,7 +130,7 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.0/howto/static-files/
 
-STATIC_URL = 'static/'
+STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
 
@@ -148,17 +149,37 @@ CORS_ALLOWED_ORIGINS = [
     "http://localhost:4200", 
     "https://localhost:4200", # Replace with your frontend's URL
 ]
-CORS_ORIGIN_ALLOW_ALL = True
+CORS_ORIGIN_ALLOW_ALL = False
 X_FRAME_OPTIONS = 'SAMEORIGIN'
 
 CORS_ALLOW_ALL_ORIGINS = True 
 # settings.py
 
+# EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+# EMAIL_HOST = 'smtp.gmail.com'
+# EMAIL_PORT = 587
+# EMAIL_USE_TLS = True
+# EMAIL_USE_SSL = False
+# EMAIL_HOST_USER = 'cvamshikrishna9381@gmail.com'
+# EMAIL_HOST_PASSWORD = 'awouuywtghjfceqa'  # App-specific password
+# DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_HOST = 'uniquemindsolutions.com'
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
-EMAIL_HOST_USER = 'cvamshikrishna9381@gmail.com'
-EMAIL_HOST_PASSWORD = 'awouuywtghjfceqa'  # App-specific password
-DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
+EMAIL_USE_SSL = False
+EMAIL_HOST_USER = 'upender@uniquemindsolutions.com'
+EMAIL_HOST_PASSWORD = 'S@m$a@321!12'  # App-specific password
+# DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 
+SESSION_COOKIE_SECURE = True  # if using HTTPS
+CSRF_COOKIE_SECURE = True  # if using HTTPS
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework.authentication.TokenAuthentication',
+    ],
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.IsAuthenticated',
+    ],
+}

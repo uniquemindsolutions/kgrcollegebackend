@@ -21,8 +21,8 @@ import pandas as pd
 import openpyxl
 from django.http import HttpResponse
 from django.http import FileResponse
-
-
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.authtoken.models import Token
 
 def home(request):
     if request.method == 'POST':
@@ -43,7 +43,11 @@ def home(request):
 
 def logout(request):
     auth_logout(request)
-    return redirect('login')
+    return redirect('home')
+
+# def logout(request):
+#     auth_logout(request)
+#     return HttpResponse('Logged out') 
 
 @login_required
 @csrf_exempt
@@ -100,12 +104,12 @@ def banner_delete(request, pk):
     banner.delete()
     return redirect('banner_list')
 
-@csrf_exempt
+@login_required
 def college_update_list_view(request):
     updates = CollegeUpdates.objects.all().order_by('id')
     return render(request, 'Home_Page/college_update_list.html', {'updates': updates})
 
-@csrf_exempt
+@login_required
 def college_update_create_view(request):
     if request.method == "POST":
         form = CollegeUpdatesForm(request.POST)
@@ -116,7 +120,7 @@ def college_update_create_view(request):
         form = CollegeUpdatesForm()
     return render(request, 'Home_Page/college_update_form.html', {'form': form})
 
-@csrf_exempt
+@login_required
 def college_update_edit_view(request, id):
     update = get_object_or_404(CollegeUpdates, id=id)
     if request.method == "POST":
@@ -128,7 +132,7 @@ def college_update_edit_view(request, id):
         form = CollegeUpdatesForm(instance=update)
     return render(request, 'Home_Page/college_update_form.html', {'form': form})
 
-@csrf_exempt
+@login_required
 def college_update_delete_view(request, id):
     update = get_object_or_404(CollegeUpdates, id=id)
     if request.method == "POST":
@@ -136,13 +140,12 @@ def college_update_delete_view(request, id):
         return redirect('college_update_list')
     return render(request, 'Home_Page/college_update_list.html')
 
-    
-@csrf_exempt
+@login_required   
 def student_count_list_view(request):
     counts = StudentsCount.objects.all()
     return render(request, 'Home_Page/student_count_list.html', {'counts': counts})
 
-@csrf_exempt
+@login_required
 def student_count_create_view(request):
     if request.method == "POST":
         form = StudentsCountForm(request.POST)
@@ -153,7 +156,7 @@ def student_count_create_view(request):
         form = StudentsCountForm()
     return render(request, 'Home_Page/student_count_form.html', {'form': form})
 
-@csrf_exempt
+@login_required
 def student_count_edit_view(request, id):
     count = get_object_or_404(StudentsCount, id=id)
     if request.method == "POST":
@@ -165,7 +168,7 @@ def student_count_edit_view(request, id):
         form = StudentsCountForm(instance=count)
     return render(request, 'Home_Page/student_count_form.html', {'form': form})
 
-@csrf_exempt
+@login_required
 def student_count_delete_view(request, id):
     count = get_object_or_404(StudentsCount, id=id)
     if request.method == "POST":
@@ -173,12 +176,12 @@ def student_count_delete_view(request, id):
         return redirect('student_count_list')
     return redirect('student_count_list')
 
-@csrf_exempt
+@login_required
 def faculty_count_list_view(request):
     counts = FactulyCount.objects.all().order_by('id')
     return render(request, 'Home_Page/faculty_count_list.html', {'counts': counts})
 
-@csrf_exempt
+@login_required
 def faculty_count_create_view(request):
     if request.method == "POST":
         form = FacultyCountForm(request.POST)
@@ -189,7 +192,7 @@ def faculty_count_create_view(request):
         form = FacultyCountForm()
     return render(request, 'Home_Page/faculty_count_form.html', {'form': form})
 
-@csrf_exempt
+@login_required
 def faculty_count_edit_view(request, id):
     count = get_object_or_404(FactulyCount, id=id)
     if request.method == "POST":
@@ -201,7 +204,7 @@ def faculty_count_edit_view(request, id):
         form = FacultyCountForm(instance=count)
     return render(request, 'Home_Page/faculty_count_form.html', {'form': form})
 
-@csrf_exempt
+@login_required
 def faculty_count_delete_view(request, id):
     count = get_object_or_404(FactulyCount, id=id)
     if request.method == "POST":
@@ -209,12 +212,12 @@ def faculty_count_delete_view(request, id):
         return redirect('faculty_count_list')
     return redirect('faculty_count_list')
 
-@csrf_exempt
+@login_required
 def programs_count_list_view(request):
     counts = ProgramsCount.objects.all().order_by('id')
     return render(request, 'Home_Page/programs_count_list.html', {'counts': counts})
 
-@csrf_exempt
+@login_required
 def programs_count_create_view(request):
     if request.method == "POST":
         form = ProgramsCountForm(request.POST)
@@ -225,7 +228,7 @@ def programs_count_create_view(request):
         form = ProgramsCountForm()
     return render(request, 'Home_Page/programs_count_form.html', {'form': form})
 
-@csrf_exempt
+@login_required
 def programs_count_edit_view(request, id):
     count = get_object_or_404(ProgramsCount, id=id)
     if request.method == "POST":
@@ -237,7 +240,7 @@ def programs_count_edit_view(request, id):
         form = ProgramsCountForm(instance=count)
     return render(request, 'Home_Page/programs_count_form.html', {'form': form})
 
-@csrf_exempt
+@login_required
 def programs_count_delete_view(request, id):
     count = get_object_or_404(ProgramsCount, id=id)
     if request.method == "POST":
@@ -245,6 +248,7 @@ def programs_count_delete_view(request, id):
         return redirect('programs_count_list')
     return redirect('programs_count_list')
 
+@login_required
 def student_form_view(request):
     if request.method == "POST":
         form = StudentFormForm(request.POST)
@@ -276,7 +280,6 @@ def send_form_email(request):
         name = data.get('name')
         email = data.get('email')
         phone = data.get('phone')
-
         # Check for missing fields
         if not name or not email or not phone:
             return JsonResponse({'error': 'Missing required fields'}, status=400)
@@ -287,10 +290,11 @@ def send_form_email(request):
                 'New Contact Form Submission',
                 f"Name: {name}\nEmail: {email}\nPhone: {phone}",
                 settings.DEFAULT_FROM_EMAIL,
-                ['cvamshikrishna9381@gmail.com'],  # Your recipient email
+                [email],  # Your recipient email
                 fail_silently=False,
             )
         except Exception as e:
+            print(f"Email send error: {str(e)}")
             return JsonResponse({'error': str(e)}, status=500)
 
         # Respond with success
@@ -298,20 +302,22 @@ def send_form_email(request):
 
     return JsonResponse({'error': 'Invalid request'}, status=400)
 
+@login_required
 def student_form_list_view(request):
     forms = StudentForm.objects.all().order_by('id')
     return render(request, 'Home_Page/student_form_list.html', {'forms': forms})
 
+@login_required
 def success_page(request):
     return render(request, 'Home_Page/success_page.html')
 
-
+@login_required
 @csrf_exempt
 def faculty_mba_list_view(request):
     faculties = Faculty_Mba.objects.all().order_by('id')
     return render(request, 'Faculty_Page/faculty_mba_list.html', {'faculties': faculties})
 
-@csrf_exempt
+@login_required
 def faculty_mba_create_view(request):
     if request.method == 'POST':
         form = FacultyMBAForm(request.POST)
@@ -322,7 +328,7 @@ def faculty_mba_create_view(request):
         form = FacultyMBAForm()
     return render(request, 'Faculty_Page/faculty_mba_form.html', {'form': form})
 
-@csrf_exempt
+@login_required
 def bulk_upload_mba_faculty(request):
     bulk_form = BulkFacultyUploadForm(request.POST, request.FILES or None)
 
@@ -334,19 +340,36 @@ def bulk_upload_mba_faculty(request):
             wb = openpyxl.load_workbook(excel_file)
             sheet = wb.active
 
-            # Iterate through the rows in the sheet and create Faculty_MBA objects
+            # Iterate through the rows in the sheet and update/create Faculty_MBA objects
             for row in sheet.iter_rows(min_row=2, values_only=True):
                 name, designation, qualification, experience_teaching = row
 
-                # Ensure slno is not null
-                Faculty_Mba.objects.create(
-                    name=name,
-                    designation=designation,
-                    qualification=qualification,
-                    experience_teaching=experience_teaching
-                )
+                # Check if a faculty member with the same name exists
+                faculty_member = Faculty_Mba.objects.filter(name=name).first()
 
-            messages.success(request, "MBA Faculty members uploaded successfully!")
+                if faculty_member:
+                    # If the name exists, check if other details are different
+                    if (faculty_member.designation != designation or
+                            faculty_member.qualification != qualification or
+                            faculty_member.experience_teaching != experience_teaching):
+                        # Update existing faculty member's details
+                        faculty_member.designation = designation
+                        faculty_member.qualification = qualification
+                        faculty_member.experience_teaching = experience_teaching
+                        faculty_member.save()
+                        messages.info(request, f"Updated faculty: {name}")
+                    else:
+                        messages.info(request, f"No changes for: {name}")
+                else:
+                    # If name does not exist, create a new faculty member
+                    Faculty_Mba.objects.create(
+                        name=name,
+                        designation=designation,
+                        qualification=qualification,
+                        experience_teaching=experience_teaching
+                    )
+                    messages.success(request, f"Added new faculty: {name}")
+
             return redirect('faculty_mba_list')
         except Exception as e:
             messages.error(request, f"Error during file upload: {e}")
@@ -355,7 +378,8 @@ def bulk_upload_mba_faculty(request):
         'bulk_form': bulk_form
     })
 
-@csrf_exempt
+
+@login_required
 def faculty_mba_edit_view(request, id):
     faculty = get_object_or_404(Faculty_Mba, id=id)
     if request.method == 'POST':
@@ -367,7 +391,7 @@ def faculty_mba_edit_view(request, id):
         form = FacultyMBAForm(instance=faculty)
     return render(request, 'Faculty_Page/faculty_mba_form.html', {'form': form})
 
-@csrf_exempt
+@login_required
 def faculty_mba_delete_view(request, id):
     faculty = get_object_or_404(Faculty_Mba, id=id)
     if request.method == 'POST':
@@ -375,13 +399,12 @@ def faculty_mba_delete_view(request, id):
         return redirect('faculty_mba_list')
     return render(request, 'Faculty_Page/faculty_mba_list.html')
 
-
-@csrf_exempt
+@login_required
 def faculty_pharmacy_list_view(request):
     faculties = Faculty_Pharamacy.objects.all().order_by('id')
     return render(request, 'Faculty_Page/faculty_pharmacy_list.html', {'faculties': faculties})
 
-@csrf_exempt
+@login_required
 def faculty_pharmacy_create_view(request):
     if request.method == 'POST':
         form = FacultyPharmacyForm(request.POST)
@@ -392,7 +415,7 @@ def faculty_pharmacy_create_view(request):
         form = FacultyPharmacyForm()
     return render(request, 'Faculty_Page/faculty_pharmacy_form.html', {'form': form})
 
-@csrf_exempt
+@login_required
 def bulk_upload_pharamacy_faculty(request):
     bulk_form = BulkFacultyUploadForm(request.POST, request.FILES or None)
 
@@ -404,20 +427,36 @@ def bulk_upload_pharamacy_faculty(request):
             wb = openpyxl.load_workbook(excel_file)
             sheet = wb.active
 
-            # Iterate through the rows in the sheet and create Faculty_MBA objects
             for row in sheet.iter_rows(min_row=2, values_only=True):
                 name, designation, qualification, experience_teaching = row
 
-                # Ensure slno is not null
-                Faculty_Pharamacy.objects.create(
-                    name=name,
-                    designation=designation,
-                    qualification=qualification,
-                    experience_teaching=experience_teaching
-                )
+                # Check if a faculty member with the same name exists
+                faculty_member = Faculty_Pharamacy.objects.filter(name=name).first()
 
-            messages.success(request, "Pharamacy Faculty members uploaded successfully!")
-            return redirect('faculty_mba_list')
+                if faculty_member:
+                    # If the name exists, check if other details are different
+                    if (faculty_member.designation != designation or
+                            faculty_member.qualification != qualification or
+                            faculty_member.experience_teaching != experience_teaching):
+                        # Update existing faculty member's details
+                        faculty_member.designation = designation
+                        faculty_member.qualification = qualification
+                        faculty_member.experience_teaching = experience_teaching
+                        faculty_member.save()
+                        messages.info(request, f"Updated faculty: {name}")
+                    else:
+                        messages.info(request, f"No changes for: {name}")
+                else:
+                    # If name does not exist, create a new faculty member
+                    Faculty_Pharamacy.objects.create(
+                        name=name,
+                        designation=designation,
+                        qualification=qualification,
+                        experience_teaching=experience_teaching
+                    )
+                    messages.success(request, f"Added new faculty: {name}")
+
+            return redirect('faculty_pharamacy_list')
         except Exception as e:
             messages.error(request, f"Error during file upload: {e}")
 
@@ -425,7 +464,7 @@ def bulk_upload_pharamacy_faculty(request):
         'bulk_form': bulk_form
     })
 
-@csrf_exempt
+@login_required
 def faculty_pharmacy_edit_view(request, id):
     faculty = get_object_or_404(Faculty_Pharamacy, id=id)
     if request.method == 'POST':
@@ -437,7 +476,7 @@ def faculty_pharmacy_edit_view(request, id):
         form = FacultyPharmacyForm(instance=faculty)
     return render(request, 'Faculty_Page/faculty_pharmacy_form.html', {'form': form})
 
-@csrf_exempt
+@login_required
 def faculty_pharmacy_delete_view(request, id):
     faculty = get_object_or_404(Faculty_Pharamacy, id=id)
     if request.method == 'POST':
@@ -445,11 +484,13 @@ def faculty_pharmacy_delete_view(request, id):
         return redirect('faculty_pharmacy_list')
     return render(request, 'Faculty_Page/faculty_pharmacy_list.html')
 
+@login_required
 # Gallery Images Views
 def gallery_image_list(request):
     gallery_images = GalleryImages.objects.all().order_by('id')
     return render(request, 'Gallery_Page/gallery_images_list.html', {'gallery_images': gallery_images})
 
+@login_required
 def gallery_image_create(request):
     if request.method == 'POST':
         form = GalleryImagesForm(request.POST, request.FILES)
@@ -460,6 +501,7 @@ def gallery_image_create(request):
         form = GalleryImagesForm()
     return render(request, 'Gallery_Page/gallery_images_form.html', {'form': form})
 
+@login_required
 def gallery_image_edit(request, pk):
     image = get_object_or_404(GalleryImages, pk=pk)
     if request.method == 'POST':
@@ -470,7 +512,7 @@ def gallery_image_edit(request, pk):
     else:
         form = GalleryImagesForm(instance=image)
     return render(request, 'Gallery_Page/gallery_images_form.html', {'form': form})
-
+@login_required
 def gallery_image_delete(request, pk):
     image = get_object_or_404(GalleryImages, pk=pk)
     if request.method == 'POST':
@@ -478,11 +520,13 @@ def gallery_image_delete(request, pk):
         return redirect('gallery_images_list')
     return redirect('gallery_images_list')
 
+@login_required
 # Gallery Videos Views
 def gallery_video_list(request):
     gallery_videos = GalleryVideos.objects.all().order_by('id')
     return render(request, 'Gallery_Page/gallery_videos_list.html', {'gallery_videos': gallery_videos})
 
+@login_required
 def gallery_video_create(request):
     if request.method == 'POST':
         form = GalleryVideosForm(request.POST, request.FILES)
@@ -493,6 +537,7 @@ def gallery_video_create(request):
         form = GalleryVideosForm()
     return render(request, 'Gallery_Page/gallery_videos_form.html', {'form': form})
 
+@login_required
 def gallery_video_edit(request, pk):
     video = get_object_or_404(GalleryVideos, pk=pk)
     if request.method == 'POST':
@@ -504,6 +549,7 @@ def gallery_video_edit(request, pk):
         form = GalleryVideosForm(instance=video)
     return render(request, 'Gallery_Page/gallery_videos_form.html', {'form': form})
 
+@login_required
 def gallery_video_delete(request, pk):
     video = get_object_or_404(GalleryVideos, pk=pk)
     if request.method == 'POST':
@@ -511,11 +557,13 @@ def gallery_video_delete(request, pk):
         return redirect('gallery_videos_list')
     return redirect('gallery_videos_list')
 
+@login_required
 def alumni_list(request):
     # Retrieve all alumni entries ordered by ID
     alumni_list = Alumni.objects.all().order_by('id')
     return render(request, 'Alumni_Page/Alumni_list.html', {'alumni_list': alumni_list})
 
+@login_required
 def alumni_create(request):
     # Create a new alumni entry
     if request.method == 'POST':
@@ -527,6 +575,7 @@ def alumni_create(request):
         form = AlumniForm()
     return render(request, 'Alumni_Page/Alumni_Form.html', {'form': form})
 
+@login_required
 def alumni_edit(request, pk):
     # Edit an existing alumni entry
     alumni = get_object_or_404(Alumni, pk=pk)
@@ -539,6 +588,7 @@ def alumni_edit(request, pk):
         form = AlumniForm(instance=alumni)
     return render(request, 'Alumni_Page/Alumni_Form.html', {'form': form})
 
+@login_required
 def alumni_delete(request, pk):
     # Delete an existing alumni entry
     alumni = get_object_or_404(Alumni, pk=pk)
@@ -547,10 +597,12 @@ def alumni_delete(request, pk):
         return redirect('alumni_list')
     return redirect('alumni_list')
 
+@login_required
 def events_list(request):
     events_list = EventsandActivites.objects.all().order_by('id')
     return render(request, 'Event_and_Activites_page/Events_and_Activites_list.html', {'events_list': events_list})
 
+@login_required
 def events_create(request):
     if request.method == 'POST':
         form = EventsandActivitesForm(request.POST, request.FILES)
@@ -561,6 +613,7 @@ def events_create(request):
         form = EventsandActivitesForm()
     return render(request, 'Event_and_Activites_page/Events_and_Activites_form.html', {'form': form})
 
+@login_required
 def events_edit(request, id):
     event = get_object_or_404(EventsandActivites, id=id)
     if request.method == 'POST':
@@ -572,13 +625,13 @@ def events_edit(request, id):
         form = EventsandActivitesForm(instance=event)
     return render(request, 'Event_and_Activites_page/Events_and_Activites_form.html', {'form': form})
 
+@login_required
 def events_delete(request, id):
     event = get_object_or_404(EventsandActivites, id=id)
     if request.method == 'POST':
         event.delete()
         return redirect('events_list')
     return redirect('events_list')
-
 
 @csrf_exempt
 def send_registration_email(request):
@@ -638,6 +691,7 @@ def send_registration_email(request):
 
     return JsonResponse({"status": "error", "message": "Invalid request method"}, status=405)
 
+@login_required
 # View to handle file upload
 def committees_view(request):
     if request.method == 'POST':
@@ -649,12 +703,13 @@ def committees_view(request):
         form = CommitteesForm()
     return render(request, 'Committees/committees_file_upload.html', {'form': form})
 
+@login_required
 # View to list uploaded files
 def committees_list_view(request):
     files_list = Committees.objects.all()  # Fetch all files
     return render(request, 'Committees/committees_list.html', {'files_list': files_list})  # Pass the files to the template
 
-
+@login_required
 # View to handle file update
 def committees_update_view(request, pk):
     file_obj = get_object_or_404(Committees, pk=pk)
@@ -667,71 +722,130 @@ def committees_update_view(request, pk):
         form = CommitteesForm(instance=file_obj)
     return render(request, 'Committees/committees_file_upload.html', {'form': form})
 
+@login_required
 # View to handle file delete
 def committees_delete_view(request, pk):
     file_obj = get_object_or_404(Committees, pk=pk)
     file_obj.delete()
     return redirect('committees_list')
+
+
+@login_required
+# View to handle file upload
+def syllabus_view(request):
+    if request.method == 'POST':
+        form = SyllabusForm(request.POST, request.FILES)
+        if form.is_valid():
+            form.save()
+            return redirect('syllabus_list')
+    else:
+        form = SyllabusForm()
+    return render(request, 'Syllabus/syllabus_file_upload.html', {'form': form})
+
+@login_required
+# View to list uploaded files
+def syllabus_list_view(request):
+    files_list = Syllabus.objects.all()  # Fetch all files
+    return render(request, 'Syllabus/syllabus_list.html', {'files_list': files_list})  # Pass the files to the template
+
+@login_required
+# View to handle file update
+def syllabus_update_view(request, pk):
+    file_obj = get_object_or_404(Syllabus, pk=pk)
+    if request.method == 'POST':
+        form = SyllabusForm(request.POST, request.FILES, instance=file_obj)
+        if form.is_valid():
+            form.save()
+            return redirect('syllabus_list')
+    else:
+        form = SyllabusForm(instance=file_obj)
+    return render(request, 'Syllabus/syllabus_file_upload.html', {'form': form})
+
+@login_required
+# View to handle file delete
+def syllabus_delete_view(request, pk):
+    file_obj = get_object_or_404(Syllabus, pk=pk)
+    file_obj.delete()
+    return redirect('syllabus_list')
  
 class BannerViewSet(viewsets.ReadOnlyModelViewSet):
+    permission_classes = [IsAuthenticated]
     queryset = Banner.objects.all().order_by('id')
     serializer_class = BannerSerializer
     filter_backends = [Bannerfilter]
-    
+ 
 class CollegeUpdatesViewSet(viewsets.ReadOnlyModelViewSet):
+    permission_classes = [IsAuthenticated]
     queryset = CollegeUpdates.objects.all().order_by('id')
     serializer_class = CollegeUpdatesSerializer
 
 class StudentsCountViewSet(viewsets.ReadOnlyModelViewSet):
+    permission_classes = [IsAuthenticated]
     queryset = StudentsCount.objects.all().order_by('id')
     serializer_class = StudentsCountSerializer
     
 
 class FactulyCountViewSet(viewsets.ReadOnlyModelViewSet):
+    permission_classes = [IsAuthenticated]
     queryset = FactulyCount.objects.all().order_by('id')
     serializer_class = FactulyCountSerializer
 
 class ProgramsCountViewSet(viewsets.ReadOnlyModelViewSet):
+    permission_classes = [IsAuthenticated]
     queryset = ProgramsCount.objects.all().order_by('id')
     serializer_class = ProgramsCountSerializer
    
 
 class StudentFormViewSet(viewsets.ReadOnlyModelViewSet):
+    permission_classes = [IsAuthenticated]
     queryset = StudentForm.objects.all().order_by('id')
     serializer_class = StudentFormSerializer
     
 
 class GalleryImagesViewSet(viewsets.ReadOnlyModelViewSet):
+    permission_classes = [IsAuthenticated]
     queryset = GalleryImages.objects.all().order_by('id')
     serializer_class = GalleryImagesSerializer
     filter_backends = [GalleryImagesfilter]
 
 class GalleryVideosViewSet(viewsets.ReadOnlyModelViewSet):
+    permission_classes = [IsAuthenticated]
     queryset = GalleryVideos.objects.all().order_by('id')
     serializer_class = GalleryVideosSerializer
     filter_backends = [GalleryVideosfilter]
 
 class Faculty_MbaViewSet(viewsets.ReadOnlyModelViewSet):
+    permission_classes = [IsAuthenticated]
     queryset = Faculty_Mba.objects.all().order_by('id')
     serializer_class = Faculty_MbaSerializer
     
 
 class Faculty_PharamacyViewSet(viewsets.ReadOnlyModelViewSet):
+    permission_classes = [IsAuthenticated]
     queryset = Faculty_Pharamacy.objects.all().order_by('id')
     serializer_class = Faculty_PharamacySerializer
    
 
 class AlumniViewSet(viewsets.ReadOnlyModelViewSet):
+    permission_classes = [IsAuthenticated]
     queryset = Alumni.objects.all().order_by('id')
     serializer_class = AlumniSerializer
     filter_backends = [DjangoFilterBackend]
     filterset_class = AlumniFilter  # Use custom filter set
 
 class EventsandActivitesViewSet(viewsets.ReadOnlyModelViewSet):
+    permission_classes = [IsAuthenticated]
     queryset = EventsandActivites.objects.all().order_by('id')
     serializer_class = EventsandActivitesSerializer
     filter_backends = [EventsandActivitesfilter]
 
 class CommitteesViewSet(viewsets.ReadOnlyModelViewSet):
+    permission_classes = [IsAuthenticated]
     queryset = Committees.objects.all().order_by('id')
     serializer_class = CommitteesSerializer
+
+
+class SyllabusViewSet(viewsets.ReadOnlyModelViewSet):
+    permission_classes = [IsAuthenticated]
+    queryset = Syllabus.objects.all().order_by('id')
+    serializer_class = SyllabusSerializer

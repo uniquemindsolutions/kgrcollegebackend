@@ -194,3 +194,6 @@ class Committees(models.Model):
     name = models.CharField(max_length=50)
     file = models.FileField(upload_to='committees/')
 
+class Syllabus(models.Model):
+    name = models.CharField(max_length=50)
+    file = models.FileField(upload_to='Syllabus/')
