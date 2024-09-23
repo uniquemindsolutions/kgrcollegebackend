@@ -67,3 +67,8 @@ class CommitteesSerializer(serializers.ModelSerializer):
     class Meta:
         model = Committees
         fields = '__all__'
+
+class SyllabusSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Syllabus
+        fields = '__all__'

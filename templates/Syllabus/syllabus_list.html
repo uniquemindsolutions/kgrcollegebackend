@@ -1,0 +1,78 @@
+{% extends 'Syllabus/syllabus.html' %}
+{% block content %}
+<div class="d-flex justify-content-between mt-3">
+    <h4>File Upload List</h4>
+    <a class="btn btn-primary" href="{% url 'syllabus_file_upload' %}">Add New File</a>
+</div>
+
+<table class="table table-striped mt-3">
+    <thead>
+        <tr>
+            <th class="text-center">ID</th>
+            <th class="text-center">Name</th>
+            <th class="text-center">File</th>
+            <th class="text-center">Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for file in files_list %}
+        <tr class="text-center">
+            <td>{{ forloop.counter }}</td>
+            <td>{{file.name}}</td>
+            <td>
+                {% if file.file %}
+                <a href="{{ file.file.url }}">{{ file.file.name }}</a>
+                {% else %}
+                No File
+                {% endif %}
+            </td>
+            <td class="text-center">
+                <a class="btn btn-sm btn-warning" href="{% url 'syllabus_file_update' file.id %}" title="Edit">
+                    <i class="fas fa-edit"></i>
+                </a>
+                <a class="btn btn-sm btn-danger" href="#" title="Delete" data-toggle="modal" data-target="#deleteModal"
+                    data-url="{% url 'syllabus_file_delete' file.id %}">
+                    <i class="fas fa-trash-alt"></i>
+                </a>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<!-- Delete Confirmation Modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel"
+    aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <form method="POST" id="deleteForm">
+                {% csrf_token %}
+                <div class="modal-header">
+                    <h5 class="modal-title" id="deleteModalLabel">Delete File</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    Are you sure you want to delete this file?
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-danger">Delete</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        $('#deleteModal').on('show.bs.modal', function (event) {
+            var button = $(event.relatedTarget);
+            var deleteUrl = button.data('url');
+
+            $('#deleteForm').attr('action', deleteUrl);
+        });
+    });
+</script>
+{% endblock %}

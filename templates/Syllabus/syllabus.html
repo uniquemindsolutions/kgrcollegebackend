@@ -1,33 +1,37 @@
 {% load static %}
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>College Dashboard</title>
   <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
   <style>
-    /* new css */
+    html, body {
+      height: 100%;
+      margin: 0;
+    }
+
     .main-section {
       display: flex;
-      height: 100vh;
+      height: 100%;
     }
 
     .sideMenu {
       width: 200px;
       color: #fff;
       padding: 20px;
-      box-sizing: border-box;
       background-color: purple;
       height: 100vh;
+      position: sticky;
+      top: 0;
+      left: 0;
+      overflow-y: auto;
     }
 
     .sideMenu a {
       color: #fff;
-      /* White text color */
       text-decoration: none;
-      /* Remove underline */
       display: block;
       padding: 10px 15px;
       border-radius: 4px;
@@ -42,9 +46,8 @@
     .right-content {
       width: calc(100% - 200px);
       padding: 20px;
-      box-sizing: border-box;
-      overflow-y: auto;
       background-color: #f4f4f4;
+      overflow-y: auto;
     }
   </style>
 </head>
@@ -56,7 +59,7 @@
       <img src="{% static 'images/logo.png' %}" alt="" width="60" class="img-fluid">
     </a>
 
-    <button class="btn ">
+    <button class="btn">
       <a class="nav-link btn btn-danger float-end ms-auto" href="{% url 'logout' %}">Logout</a>
     </button>
   </nav>
@@ -71,7 +74,6 @@
         <li><a href="{% url 'events_list' %}">Events and Activites</a></li>
         <li><a href="{% url 'committees_list' %}">Committees</a></li>
         <li><a href="{% url 'syllabus_list' %}">Syllabus</a></li>
-        
       </ul>
     </div>
 
@@ -80,16 +82,12 @@
         <div class="collapse navbar-collapse" id="navbarSupportedContent">
           <ul class="navbar-nav mb-2 mb-lg-0 me-2">
             <li class="nav-item">
-              <a class="btn btn-warning mr-2" id="banner-link" href="{% url 'gallery_images_list' %}">Gallery Images</a>
-            </li>
-            <li class="nav-item">
-              <a class="btn btn-warning mr-2" id="news-link" href="{% url 'gallery_videos_list' %}">Gallery Videos</a>
+              <a class="btn btn-warning mr-2" id="alumni-link" href="{% url 'syllabus_list' %}">Syllabus</a>
             </li>
           </ul>
         </div>
-
       </nav>
-      <div class="">
+      <div>
         {% block content %}
         {% endblock %}
       </div>
@@ -106,17 +104,10 @@
     document.addEventListener('DOMContentLoaded', function () {
       var path = window.location.pathname;
 
-      if (path.includes('banners')) {
-        document.getElementById('banner-link').classList.add('active');
-      } else if (path.includes('photos')) {
-        document.getElementById('photos-link').classList.add('active');
-      } else if (path.includes('videos')) {
-        document.getElementById('videos-link').classList.add('active');
-      } else if (path.includes('news')) {
-        document.getElementById('news-link').classList.add('active');
+      if (path.includes('alumni')) {
+        document.getElementById('alumni-link').classList.add('active');
       }
     });
-
   </script>
 </body>
 
