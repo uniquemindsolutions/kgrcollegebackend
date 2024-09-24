@@ -8,12 +8,68 @@
         <hr>
         <form method="post" enctype="multipart/form-data">
           {% csrf_token %}
-          {{ form.as_p }}
+          
+          <!-- Type field -->
+          <div class="form-group">
+            <label for="id_type">Type</label>
+            {{ form.type }}
+          </div>
+
+          <!-- Sub Type field -->
+          <div class="form-group">
+            <label for="id_sub_type">Sub Type</label>
+            {{ form.sub_type }}
+          </div>
+
+          <!-- Image field (shown if sub_type is 'Image' or 'Banner') -->
+          <div class="form-group" id="imageField" style="display: none;">
+            <label for="id_image">Upload Image</label>
+            {{ form.image }}
+          </div>
+
+          <!-- Video field (shown if sub_type is 'Video') -->
+          <div class="form-group" id="videoField" style="display: none;">
+            <label for="id_video">Upload Video</label>
+            {{ form.video }}
+          </div>
+
+          <!-- Other form fields (Format, File Size, etc.) -->
+          {{ form.format.as_p }}
+          {{ form.file_size.as_p }}
+
+          <!-- Submit button -->
           <button type="submit" class="btn btn-primary">Save</button>
         </form>
       </div>
     </div>
-
   </div>
 </div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    // Function to show/hide the image or video field based on sub_type selection
+    function toggleMediaFields() {
+      var subType = document.getElementById('id_sub_type').value;
+      var imageField = document.getElementById('imageField');
+      var videoField = document.getElementById('videoField');
+      
+      if (subType === 'Image' || subType === 'Banner') {
+        imageField.style.display = 'block';
+        videoField.style.display = 'none';
+      } else if (subType === 'Video') {
+        imageField.style.display = 'none';
+        videoField.style.display = 'block';
+      } else {
+        imageField.style.display = 'none';
+        videoField.style.display = 'none';
+      }
+    }
+
+    // Initial toggle based on current value
+    toggleMediaFields();
+
+    // Add event listener to the sub_type field
+    document.getElementById('id_sub_type').addEventListener('change', toggleMediaFields);
+  });
+</script>
 {% endblock %}
