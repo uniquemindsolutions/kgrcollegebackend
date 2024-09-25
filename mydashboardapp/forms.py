@@ -7,14 +7,21 @@ from django.contrib.auth.models import User
 class BannerForm(forms.ModelForm):
     class Meta:
         model = Banner
-        fields = ['image','type', 'sub_type']
+        fields = ['image', 'type', 'sub_type', 'video']
 
-    # def clean_image(self):
-    #     image = self.cleaned_data.get('image')
-    #     img = Image.open(image)
-    #     if img.width != 1920 or img.height != 1080:
-    #         raise forms.ValidationError("Image must be 1920x1080 pixels.")
-    #     return image
+    def clean(self):
+        cleaned_data = super().clean()
+        image = cleaned_data.get('image')
+        video = cleaned_data.get('video')
+
+        # Ensure either an image or a video is uploaded, but not both
+        if not image and not video:
+            raise forms.ValidationError('You must upload either an image or a video.')
+        if image and video:
+            raise forms.ValidationError('You cannot upload both an image and a video at the same time.')
+
+        return cleaned_data
+
 
 class CollegeUpdatesForm(forms.ModelForm):
     class Meta:

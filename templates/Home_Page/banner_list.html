@@ -12,7 +12,7 @@
       <th>ID</th>
       <th>Type</th>
       <th>Sub Type</th>
-      <th>Image</th>
+      <th>Media</th>
       <th>Format</th>
       <th>File Size</th>
       <th>Uploaded At</th>
@@ -25,7 +25,16 @@
       <td>{{ forloop.counter }}</td>
       <td>{{ banner.type }}</td>
       <td>{{ banner.sub_type }}</td>
-      <td><img src="{{ banner.image.url }}" alt="Banner" width="70px"></td>
+      <td>
+        {% if banner.image %}
+          <img src="{{ banner.image.url }}" alt="Banner" width="70px">
+        {% elif banner.video %}
+          <video width="70px" controls>
+            <source src="{{ banner.video.url }}" type="video/mp4">
+            Your browser does not support the video tag.
+          </video>
+        {% endif %}
+      </td>
       <td>{{ banner.format }}</td>
       <td>{{ banner.file_size }}KB</td>
       <td>{{ banner.uploaded_at }}</td>
@@ -63,17 +72,14 @@
     </div>
   </div>
 </div>
+
 <script>
   document.addEventListener('DOMContentLoaded', function () {
-    // Attach event listener to all delete buttons
     $('#deleteModal').on('show.bs.modal', function (event) {
-      var button = $(event.relatedTarget); // Button that triggered the modal
-      var deleteUrl = button.data('url'); // Extract URL from data-* attribute
-
-      // Update the modal's confirm delete button with the URL
+      var button = $(event.relatedTarget);
+      var deleteUrl = button.data('url');
       $('#confirmDeleteBtn').attr('href', deleteUrl);
     });
   });
 </script>
-
 {% endblock %}
