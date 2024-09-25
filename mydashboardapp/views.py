@@ -71,20 +71,38 @@ def banner_add(request):
         form = BannerForm(request.POST, request.FILES)
         if form.is_valid():
             banner = form.save(commit=False)
-            image_file = banner.image
 
-            # Open the image file using PIL to extract attributes
-            with Image.open(image_file) as img:
-                banner.width = img.width
-                banner.height = img.height
-                banner.format = img.format if img.format else 'Unknown'
+            image_file = request.FILES.get('image', None)
+            video_file = request.FILES.get('video', None)
 
-            banner.file_size = image_file.size
+            # Handle image upload
+            if image_file:
+                banner.file_size = image_file.size
+                try:
+                    with Image.open(image_file) as img:
+                        banner.width = img.width
+                        banner.height = img.height
+                        banner.format = img.format if img.format else 'Unknown'
+                except Exception as e:
+                    print(f"Error processing image: {e}")
+                    banner.width = 0
+                    banner.height = 0
+                    banner.format = 'Unknown'
+
+            # Handle video upload
+            elif video_file:
+                banner.file_size = video_file.size
+                banner.format = 'mp4'  # Assuming mp4, adjust as needed
+
+            # Save the banner instance
             banner.save()
+
             return redirect('banner_list')
     else:
         form = BannerForm()
+
     return render(request, 'Home_Page/banner_form.html', {'form': form})
+
 
 @login_required
 def banner_edit(request, pk):

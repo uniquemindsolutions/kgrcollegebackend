@@ -8,11 +8,59 @@
                 <hr>
                 <form method="post" enctype="multipart/form-data">
                     {% csrf_token %}
-                    {{ form.as_p }}
+                    {{ form.non_field_errors }}
+                    <div class="form-group">
+                        {{ form.heading.label_tag }} {{ form.heading }}
+                    </div>
+                    <div class="form-group">
+                        {{ form.type.label_tag }} {{ form.type }}
+                    </div>
+                    <div class="form-group">
+                        {{ form.sub_type.label_tag }} {{ form.sub_type }}
+                    </div>
+
+                    <!-- Image upload field -->
+                    <div class="form-group" id="imageField" style="display:none;">
+                        {{ form.image.label_tag }} {{ form.image }}
+                    </div>
+
+                    <!-- Video upload field -->
+                    <div class="form-group" id="videoField" style="display:none;">
+                        {{ form.Video.label_tag }} {{ form.Video }}
+                    </div>
+
                     <button type="submit" class="btn btn-primary">Submit</button>
                 </form>
             </div>
         </div>
     </div>
 </div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        // Function to toggle visibility of fields
+        function toggleFields() {
+            var subType = document.querySelector('select[name="sub_type"]').value;
+            var imageField = document.getElementById('imageField');
+            var videoField = document.getElementById('videoField');
+            
+            if (subType === 'Image') {
+                imageField.style.display = 'block';
+                videoField.style.display = 'none';
+            } else if (subType === 'Video') {
+                imageField.style.display = 'none';
+                videoField.style.display = 'block';
+            } else {
+                imageField.style.display = 'none';
+                videoField.style.display = 'none';
+            }
+        }
+
+        // Trigger on page load to set the correct fields
+        toggleFields();
+
+        // Add event listener to the subtype field
+        document.querySelector('select[name="sub_type"]').addEventListener('change', toggleFields);
+    });
+</script>
 {% endblock %}

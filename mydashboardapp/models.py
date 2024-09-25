@@ -22,14 +22,29 @@ class Banner(models.Model):
     sub_type = models.CharField(max_length=50, choices=SUB_TYPE_CHOICES, default='Banner')
     format = models.CharField(max_length=50, blank=True, null=True)
     file_size = models.PositiveIntegerField(blank=True, null=True)
-    image = models.ImageField(upload_to='Home/banners/')
+    image = models.ImageField(upload_to='Home/banners/Images', blank=True, null=True)
+    video = models.FileField(upload_to='Home/banners/video', blank=True, null=True)
     uploaded_at = models.DateTimeField(auto_now=True)
 
     def save(self, *args, **kwargs):
-        super().save(*args, **kwargs)
-        img = Image.open(self.image.path)
-        self.width, self.height = img.size
-        super().save(*args, **kwargs)
+        # Check if an image or video is uploaded
+        if self.image:
+            # Process image file
+            try:
+                img = Image.open(self.image)
+                self.width, self.height = img.size
+                self.format = img.format
+            except Exception as e:
+                print(f"Error processing image: {e}")
+                self.width = None
+                self.height = None
+                self.format = 'Unknown'
+        elif self.video:
+            # Process video file
+            self.format = 'mp4'  # Assuming mp4 format for videos, adjust as necessary.
+
+        # Call the original save method
+        super(Banner, self).save(*args, **kwargs)
 
 
 class CollegeUpdates(models.Model):
@@ -65,9 +80,7 @@ class GalleryImages(models.Model):
 
     SUB_TYPE_CHOICES = [
         ('Image', 'Image'),
-        ('Video', 'Video'),
         ('Banner','Banner'),
-        ('News','News')
     ]
 
     type = models.CharField(max_length=50, choices=TYPE_CHOICES, default='Gallery')
@@ -95,10 +108,7 @@ class GalleryVideos(models.Model):
     ]
 
     SUB_TYPE_CHOICES = [
-        ('Image', 'Image'),
         ('Video', 'Video'),
-        ('Banner','Banner'),
-        ('News','News')
     ]
 
     type = models.CharField(max_length=50, choices=TYPE_CHOICES, default='Gallery')
@@ -156,7 +166,7 @@ class EventsandActivites(models.Model):
     heading = models.CharField(max_length=100)
     format = models.CharField(max_length=50, blank=True, null=True)
     file_size = models.PositiveIntegerField(blank=True, null=True)
-    image = models.ImageField(upload_to='EventsandActivites/Images/')
+    image = models.ImageField(upload_to='EventsandActivites/Images/',blank=True, null=True)
     Video = models.FileField(upload_to='EventsandActivites/Videos/', blank=True, null=True)
     uploaded_at = models.DateTimeField(auto_now=True)
 

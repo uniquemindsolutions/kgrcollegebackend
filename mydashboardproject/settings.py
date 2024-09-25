@@ -149,7 +149,7 @@ CORS_ALLOWED_ORIGINS = [
     "http://localhost:4200", 
     "https://localhost:4200", # Replace with your frontend's URL
 ]
-CORS_ORIGIN_ALLOW_ALL = False
+CORS_ORIGIN_ALLOW_ALL = True
 X_FRAME_OPTIONS = 'SAMEORIGIN'
 
 CORS_ALLOW_ALL_ORIGINS = True 
