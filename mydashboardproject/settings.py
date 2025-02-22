@@ -168,8 +168,9 @@ EMAIL_HOST = 'uniquemindsolutions.com'
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 EMAIL_USE_SSL = False
-EMAIL_HOST_USER = 'info@kgrinstitutes.com'
-EMAIL_HOST_PASSWORD = 'S@m$a@321!12'
+EMAIL_HOST_USER = 'upender@uniquemindsolutions.com'
+EMAIL_HOST_PASSWORD = 'S@m$a@321!12'  # App-specific password
+DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 
 SESSION_COOKIE_SECURE = True  # if using HTTPS
 CSRF_COOKIE_SECURE = True  # if using HTTPS
