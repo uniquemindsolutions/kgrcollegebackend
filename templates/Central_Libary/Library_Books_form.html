@@ -1,0 +1,19 @@
+{% extends 'Central_Libary/CentralLibary.html' %}
+{% block content %}
+<div class="row">
+    <div class="col-lg-6 offset-lg-3 mt-4">
+        <div class="card">
+            <div class="card-body">
+                <h4>{% if form.instance.pk %}Edit{% else %}Add{% endif %} Library Particulars</h4>
+                <hr>
+                <form method="post">
+                    {% csrf_token %}
+                    {{ form.as_p }}
+                    <button type="submit" class="btn btn-primary">Submit</button>
+                    <a href="{% url 'libraryinfo_list' %}" class="btn btn-secondary">Cancel</a>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

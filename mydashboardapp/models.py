@@ -46,10 +46,14 @@ class Banner(models.Model):
         # Call the original save method
         super(Banner, self).save(*args, **kwargs)
 
-
 class CollegeUpdates(models.Model):
-    updates_text = models.TextField()
+    updates_text = models.CharField(max_length=255, blank=True, null=True)  # Description/Text
+    updates_url = models.URLField(blank=True, null=True)  # Link
+    updates_files = models.FileField(upload_to='Home/CollegeUpdates', blank=True, null=True)  # File
 
+    def __str__(self):
+        return self.updates_text
+    
 class StudentsCount(models.Model):
     student_count = models.IntegerField()
 
@@ -59,6 +63,10 @@ class FactulyCount(models.Model):
 class ProgramsCount(models.Model):
     programs_count = models.IntegerField()
 
+class ImportantSites(models.Model):
+    site_name=models.CharField(max_length=50)
+    site_url=models.URLField()
+    
 class StudentForm(models.Model):
     name = models.CharField(max_length=40)
     email = models.EmailField()
@@ -69,7 +77,57 @@ class StudentForm(models.Model):
                 message='Phone number must be exactly 10 digits.'
             )
         ])
+    message = models.TextField(blank=True,null=True)
 
+class Syllabus(models.Model):
+    name = models.CharField(max_length=50)
+    file = models.FileField(upload_to='Syllabus/')
+
+class Alumni(models.Model):
+    alumni_image = models.ImageField(upload_to='Alumni/Images')
+    alumni_video = models.FileField(upload_to='Alumni/Videos/', null=True, blank=True)
+    branch = models.CharField(max_length=50,blank=True,null=True)
+    name = models.CharField(max_length=50)
+    location = models.CharField(max_length=160,blank=True,null=True)
+    designation = models.CharField(max_length=150)
+
+class LibraryInfo(models.Model):
+    library_particulars=models.CharField(max_length=100)
+    description=models.TextField()
+
+class Library_Books(models.Model):
+    courses = models.CharField(max_length=200)
+    titles = models.IntegerField(blank=True,null=True)
+    volumes = models.IntegerField(blank=True,null=True)
+    journals = models.IntegerField(blank=True,null=True)
+    international_journals = models.IntegerField(blank=True,null=True)
+    
+class Committees(models.Model):
+    name = models.CharField(max_length=50)
+    file = models.FileField(upload_to='committees/')
+
+class Mba_Faculty_Images(models.Model):
+    faculty_image=models.ImageField(upload_to='Mba_Faculty/Images/',blank=True,null=True)
+    faculty_name=models.CharField(max_length=50)
+    faculty_designation=models.TextField()
+    
+class Faculty_Mba(models.Model):
+    name = models.CharField(max_length=50)
+    designation = models.CharField(max_length=70)
+    qualification = models.CharField(max_length=70)
+    experience_teaching = models.CharField(max_length=40)
+
+
+class Faculty_Pharamacy(models.Model):
+    name = models.CharField(max_length=50)
+    designation = models.CharField(max_length=70)
+    qualification = models.CharField(max_length=70)
+    experience_teaching = models.CharField(max_length=40)
+
+
+class Course_Admissions(models.Model):
+    course_name = models.CharField(max_length=50)
+    admission_link = models.URLField(blank=True,null=True)
 
 class GalleryImages(models.Model):
     TYPE_CHOICES = [
@@ -125,29 +183,27 @@ class GalleryVideos(models.Model):
         self.format = self.video.path.split('.')[-1].lower()  
         super().save(*args, **kwargs)
 
+class StudentOnlineRegistration(models.Model):
+    STUDENT_STATUS_CHOICES = [
+        ('Pursuing', 'Pursuing'),
+        ('Passed', 'Passed'),
+    ]
+    student_name = models.CharField(max_length=255)
+    father_name = models.CharField(max_length=255)
+    date_of_birth = models.DateField()
+    permanent_address = models.TextField()
+    contact_number = models.CharField(max_length=15)
+    email_address = models.EmailField(unique=True)
+    mba_status = models.CharField(max_length=10, choices=STUDENT_STATUS_CHOICES, default='Pursuing')
+    passed_year = models.IntegerField(null=True, blank=True)
+    college = models.CharField(max_length=255, null=True, blank=True)
+    university = models.CharField(max_length=255, null=True, blank=True)
+    percentage_of_marks = models.DecimalField(max_digits=5, decimal_places=2, null=True, blank=True)
+    cv_or_resume = models.FileField(upload_to='resumes/', null=True, blank=True)
 
-class Faculty_Mba(models.Model):
-    name = models.CharField(max_length=50)
-    designation = models.CharField(max_length=70)
-    qualification = models.CharField(max_length=70)
-    experience_teaching = models.CharField(max_length=40)
-
-
-class Faculty_Pharamacy(models.Model):
-    name = models.CharField(max_length=50)
-    designation = models.CharField(max_length=70)
-    qualification = models.CharField(max_length=70)
-    experience_teaching = models.CharField(max_length=40)
-
-
-class Alumni(models.Model):
-    alumni_image = models.ImageField(upload_to='Alumni/Images')
-    alumni_video = models.FileField(upload_to='Alumni/Videos/', null=True, blank=True)
-    branch = models.CharField(max_length=50)
-    name = models.CharField(max_length=50)
-    location = models.CharField(max_length=160)
-    designation = models.CharField(max_length=100)
-
+    def __str__(self):
+        return self.student_name
+    
 class EventsandActivites(models.Model):
     TYPE_CHOICES = [
         ('Home', 'Home'),
@@ -177,33 +233,3 @@ class EventsandActivites(models.Model):
             self.format = img.format
             self.file_size = os.path.getsize(self.image.path)
             super().save(*args, **kwargs)
-
-class StudentOnlineRegistration(models.Model):
-    STUDENT_STATUS_CHOICES = [
-        ('Pursuing', 'Pursuing'),
-        ('Passed', 'Passed'),
-    ]
-
-    student_name = models.CharField(max_length=255)
-    father_name = models.CharField(max_length=255)
-    date_of_birth = models.DateField()
-    permanent_address = models.TextField()
-    contact_number = models.CharField(max_length=15)
-    email_address = models.EmailField(unique=True)
-    mba_status = models.CharField(max_length=10, choices=STUDENT_STATUS_CHOICES, default='Pursuing')
-    passed_year = models.IntegerField(null=True, blank=True)
-    college = models.CharField(max_length=255, null=True, blank=True)
-    university = models.CharField(max_length=255, null=True, blank=True)
-    percentage_of_marks = models.DecimalField(max_digits=5, decimal_places=2, null=True, blank=True)
-    cv_or_resume = models.FileField(upload_to='resumes/', null=True, blank=True)
-
-    def __str__(self):
-        return self.student_name
-
-class Committees(models.Model):
-    name = models.CharField(max_length=50)
-    file = models.FileField(upload_to='committees/')
-
-class Syllabus(models.Model):
-    name = models.CharField(max_length=50)
-    file = models.FileField(upload_to='Syllabus/')
