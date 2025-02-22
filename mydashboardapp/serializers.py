@@ -7,7 +7,6 @@ class BannerSerializer(serializers.ModelSerializer):
         model = Banner
         fields = '__all__'
 
-
 class CollegeUpdatesSerializer(serializers.ModelSerializer):
     class Meta:
         model = CollegeUpdates
@@ -27,22 +26,47 @@ class ProgramsCountSerializer(serializers.ModelSerializer):
     class Meta:
         model = ProgramsCount
         fields = '__all__'
-    
+        
+class ImportantSitesSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ImportantSites
+        fields = '__all__'    
+        
 class StudentFormSerializer(serializers.ModelSerializer):
     class Meta:
         model = StudentForm
         fields = '__all__'
-    
-class GalleryImagesSerializer(serializers.ModelSerializer):
+        
+class SyllabusSerializer(serializers.ModelSerializer):
     class Meta:
-        model = GalleryImages
-        fields = '__all__'
-    
-class GalleryVideosSerializer(serializers.ModelSerializer):
+        model = Syllabus
+        fields = '__all__'  
+          
+class AlumniSerializer(serializers.ModelSerializer):
     class Meta:
-        model = GalleryVideos
+        model = Alumni
+        fields = '__all__'  
+         
+class LibraryInfoSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = LibraryInfo
+        fields = '__all__'  
+         
+class Library_BooksSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Library_Books
+        fields = '__all__'   
+        
+class CommitteesSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Committees
+        fields = '__all__'        
+
+class Mba_Faculty_ImagesSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Mba_Faculty_Images
         fields = '__all__'
-    
+        
 class Faculty_MbaSerializer(serializers.ModelSerializer):
     class Meta:
         model = Faculty_Mba
@@ -52,23 +76,24 @@ class Faculty_PharamacySerializer(serializers.ModelSerializer):
     class Meta:
         model = Faculty_Pharamacy
         fields = '__all__'
-
-class AlumniSerializer(serializers.ModelSerializer):
+        
+class Course_AdmissionsSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Alumni
+        model = Course_Admissions
         fields = '__all__'
+                    
+class GalleryImagesSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = GalleryImages
+        fields = '__all__'
+    
+class GalleryVideosSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = GalleryVideos
+        fields = '__all__'
+
 
 class EventsandActivitesSerializer(serializers.ModelSerializer):
     class Meta:
         model = EventsandActivites
-        fields = '__all__'
-    
-class CommitteesSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Committees
-        fields = '__all__'
-
-class SyllabusSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Syllabus
         fields = '__all__'

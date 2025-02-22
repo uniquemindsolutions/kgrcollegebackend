@@ -1,38 +1,43 @@
-{% extends 'Home_Page/Homepage.html' %}
+{% extends 'Faculty_Page/Faculty_Page.html' %}
 {% block content %}
 <div class="d-flex justify-content-between mt-3">
-    <h4>Home Page College Updates</h4>
-    <a class="btn btn-primary" href="{% url 'college_update_create' %}">Add New Update</a>
+    <h4>MBA Faculty Images List</h4>
+    <div>
+        <a class="btn btn-primary" href="{% url 'mba_faculty_Images_create' %}">Add New Faculty Image</a>
+    </div>
 </div>
-<table class="table table-striped mt-3">
+
+<!-- Faculty List -->
+<table class="table table-striped mt-4">
     <thead>
         <tr>
-            <th>ID</th>
-            <th>Update</th>
+            <th>Serial Number</th>
+            <th>Faculty Image</th>
+            <th>Faculty Name</th>
+            <th>Faculty Designation</th>
             <th>Actions</th>
         </tr>
     </thead>
     <tbody>
-        {% for update in updates %}
+        {% for faculty in mba_faculty %}
         <tr>
             <td>{{ forloop.counter }}</td>
             <td>
-                {% if update.updates_url %}
-                    <a href="{{ update.updates_url }}" target="_blank">{{ update.updates_url }}</a>
-                {% elif update.updates_files %}
-                    <a href="{{ update.updates_files.url }}" download>
-                        {{ update.updates_files.name|cut:"Home/CollegeUpdates/" }}
-                    </a>
+                {% if faculty.faculty_image %}
+                <img src="{{ faculty.faculty_image.url }}" alt="Faculty Image" width="50" height="50">
                 {% else %}
-                    No update available
+                No Image
                 {% endif %}
-            </td>                        
+            </td>
+
+            <td>{{ faculty.faculty_name }}</td>
+            <td>{{ faculty.faculty_designation }}</td>
             <td>
-                <a class="btn btn-sm btn-warning" href="{% url 'college_update_edit' update.pk%}" title="Edit">
+                <a class="btn btn-sm btn-warning" href="{% url 'mba_faculty_Images_edit' faculty.id %}" title="Edit">
                     <i class="fas fa-edit"></i>
                 </a>
                 <a class="btn btn-sm btn-danger" href="#" title="Delete" data-toggle="modal" data-target="#deleteModal"
-                    data-url="{% url 'college_update_delete' update.pk %}">
+                    data-url="{% url 'mba_faculty_Images_delete' faculty.id %}">
                     <i class="fas fa-trash-alt"></i>
                 </a>
             </td>
@@ -41,6 +46,7 @@
     </tbody>
 </table>
 
+<!-- Delete Confirmation Modal -->
 <div class="modal fade" id="deleteModal" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel"
     aria-hidden="true">
     <div class="modal-dialog" role="document">
@@ -48,13 +54,13 @@
             <form method="POST" id="deleteForm">
                 {% csrf_token %}
                 <div class="modal-header">
-                    <h5 class="modal-title" id="deleteModalLabel">Delete College Update</h5>
+                    <h5 class="modal-title" id="deleteModalLabel">Delete MBA Faculty</h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
                 <div class="modal-body">
-                    Are you sure you want to delete this College Update?
+                    Are you sure you want to delete this faculty member?
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
@@ -75,7 +81,5 @@
             $('#deleteForm').attr('action', deleteUrl);
         });
     });
-
 </script>
-
 {% endblock %}

@@ -130,12 +130,13 @@ def college_update_list_view(request):
 @login_required
 def college_update_create_view(request):
     if request.method == "POST":
-        form = CollegeUpdatesForm(request.POST)
+        form = CollegeUpdatesForm(request.POST, request.FILES)  
         if form.is_valid():
             form.save()
             return redirect('college_update_list')
     else:
         form = CollegeUpdatesForm()
+    
     return render(request, 'Home_Page/college_update_form.html', {'form': form})
 
 @login_required
@@ -267,11 +268,51 @@ def programs_count_delete_view(request, id):
     return redirect('programs_count_list')
 
 @login_required
+def important_sites_list_view(request):
+    important_sites = ImportantSites.objects.all().order_by('id')
+    return render(request, 'Home_Page/important_site_list.html', {'important_sites': important_sites})
+
+@login_required
+def important_sites_create_view(request):
+    if request.method == 'POST':
+        form = ImportantSitesForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect('important_sites_list')  # Redirect to a list view or another page
+    else:
+        form = ImportantSitesForm()
+    return render(request, 'Home_Page/important_site_form.html', {'form': form})
+
+def important_sites_update_view(request, id):
+    important_site = get_object_or_404(ImportantSites, id=id)  # Get the object
+
+    if request.method == 'POST':
+        form = ImportantSitesForm(request.POST, instance=important_site)  # Use the correct form
+        if form.is_valid():
+            form.save()
+            return redirect('important_sites_list')  # Redirect to list view
+    else:
+        form = ImportantSitesForm(instance=important_site)  # Populate form with instance data
+
+    return render(request, 'Home_Page/important_site_form.html', {'form': form})
+
+
+@csrf_exempt
+def important_sites_delete_view(request, id):
+    important_site = get_object_or_404(ImportantSites, id=id)  # Fetch the correct object
+    if request.method == 'POST':
+        important_site.delete()  # Delete the object
+        return redirect('important_sites_list')  # Redirect after deletion
+    return redirect('important_sites_list')  # Redirect if not POST
+
+    
+@login_required
 def student_form_view(request):
     if request.method == "POST":
         form = StudentFormForm(request.POST)
         if form.is_valid():
-            student_form = form.save()
+            student_form = form.save(commit=False)
+            student_form.save()
             # Send email
             send_mail(
                 'New Student Form Submission',
@@ -298,36 +339,285 @@ def send_form_email(request):
         name = data.get('name')
         email = data.get('email')
         phone = data.get('phone')
+        message = data.get('message')
+
         # Check for missing fields
         if not name or not email or not phone:
             return JsonResponse({'error': 'Missing required fields'}, status=400)
 
-        # Send email
+        # Save to database
         try:
+            student_form = StudentForm.objects.create(
+                name=name,
+                email=email,
+                phone_number=phone,  # Ensure this matches your model field
+                message=message  # Ensure this field exists in your model
+            )
+            student_form.save()
+            print(f"Saved form: {student_form}")
+
+            # Send email
             send_mail(
                 'New Contact Form Submission',
-                f"Name: {name}\nEmail: {email}\nPhone: {phone}",
+                f"Name: {name}\nEmail: {email}\nPhone: {phone}\nMessage: {message}",
                 settings.DEFAULT_FROM_EMAIL,
-                [email],  # Your recipient email
+                ['cvamshikrishna9381@gmail.com'],  # Your recipient email
                 fail_silently=False,
             )
+
         except Exception as e:
-            print(f"Email send error: {str(e)}")
-            return JsonResponse({'error': str(e)}, status=500)
+            print(f"Database save error: {str(e)}")
+            return JsonResponse({'error': f'Database error: {str(e)}'}, status=500)
 
         # Respond with success
-        return JsonResponse({'message': 'Email sent successfully'}, status=200)
+        return JsonResponse({'message': 'Email sent and form saved successfully'}, status=200)
 
     return JsonResponse({'error': 'Invalid request'}, status=400)
 
+
 @login_required
 def student_form_list_view(request):
-    forms = StudentForm.objects.all().order_by('id')
+    forms = StudentForm.objects.all().order_by('-id')  # Fetch newest first
+    print(f"Retrieved {forms.count()} forms")  # Debugging
     return render(request, 'Home_Page/student_form_list.html', {'forms': forms})
+
+@login_required
+@csrf_exempt  # Only if you intend to bypass CSRF protection, otherwise remove this if your form includes {% csrf_token %}
+def student_form_delete_view(request, pk):
+    form_instance = get_object_or_404(StudentForm, pk=pk)
+    if request.method == "POST":
+        form_instance.delete()
+        return redirect('student_form_list')  # Make sure this URL name matches your list view
+    # For non-POST, you could either redirect or render a confirmation page
+    return redirect('student_form_list')
+
 
 @login_required
 def success_page(request):
     return render(request, 'Home_Page/success_page.html')
+
+
+@login_required
+# View to handle file upload
+def syllabus_view(request):
+    if request.method == 'POST':
+        form = SyllabusForm(request.POST, request.FILES)
+        if form.is_valid():
+            form.save()
+            return redirect('syllabus_list')
+    else:
+        form = SyllabusForm()
+    return render(request, 'Syllabus/syllabus_file_upload.html', {'form': form})
+
+@login_required
+# View to list uploaded files
+def syllabus_list_view(request):
+    files_list = Syllabus.objects.all()  # Fetch all files
+    return render(request, 'Syllabus/syllabus_list.html', {'files_list': files_list})  # Pass the files to the template
+
+@login_required
+# View to handle file update
+def syllabus_update_view(request, pk):
+    file_obj = get_object_or_404(Syllabus, pk=pk)
+    if request.method == 'POST':
+        form = SyllabusForm(request.POST, request.FILES, instance=file_obj)
+        if form.is_valid():
+            form.save()
+            return redirect('syllabus_list')
+    else:
+        form = SyllabusForm(instance=file_obj)
+    return render(request, 'Syllabus/syllabus_file_upload.html', {'form': form})
+
+@login_required
+# View to handle file delete
+def syllabus_delete_view(request, pk):
+    file_obj = get_object_or_404(Syllabus, pk=pk)
+    file_obj.delete()
+    return redirect('syllabus_list')
+
+@login_required
+def alumni_list(request):
+    # Retrieve all alumni entries ordered by ID
+    alumni_list = Alumni.objects.all().order_by('id')
+    return render(request, 'Alumni_Page/Alumni_list.html', {'alumni_list': alumni_list})
+
+@login_required
+def alumni_create(request):
+    # Create a new alumni entry
+    if request.method == 'POST':
+        form = AlumniForm(request.POST, request.FILES)
+        if form.is_valid():
+            form.save()
+            return redirect('alumni_list')
+    else:
+        form = AlumniForm()
+    return render(request, 'Alumni_Page/Alumni_Form.html', {'form': form})
+
+@login_required
+def alumni_edit(request, pk):
+    # Edit an existing alumni entry
+    alumni = get_object_or_404(Alumni, pk=pk)
+    if request.method == 'POST':
+        form = AlumniForm(request.POST, request.FILES, instance=alumni)
+        if form.is_valid():
+            form.save()
+            return redirect('alumni_list')
+    else:
+        form = AlumniForm(instance=alumni)
+    return render(request, 'Alumni_Page/Alumni_Form.html', {'form': form})
+
+@login_required
+def alumni_delete(request, pk):
+    # Delete an existing alumni entry
+    alumni = get_object_or_404(Alumni, pk=pk)
+    if request.method == 'POST':
+        alumni.delete()
+        return redirect('alumni_list')
+    return redirect('alumni_list')
+
+@csrf_exempt
+def librayinfo_list_view(request):
+    library_info = LibraryInfo.objects.all().order_by('id')
+    return render(request, 'Central_Libary/librayinfo_list.html', {'library_info': library_info})
+
+def libraryinfo_create_view(request):
+    if request.method == 'POST':
+        form = LibraryinfoForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect('libraryinfo_list')  
+    else:
+        form = LibraryinfoForm()  
+    return render(request, 'Central_Libary/librayinfo_form.html', {'form': form})
+
+def libraryinfo_edit_view(request, id):
+    library = get_object_or_404(LibraryInfo, id=id)
+    if request.method == 'POST':
+        form = LibraryinfoForm(request.POST, instance=library)  
+        if form.is_valid():
+            form.save()
+            return redirect('libraryinfo_list')
+    else:
+        form = LibraryinfoForm(instance=library)
+    return render(request, 'Central_Libary/librayinfo_form.html', {'form': form})
+
+def libraryinfo_delete_view(request, id):
+    library = get_object_or_404(LibraryInfo, id=id)
+    if request.method == 'POST':
+        library.delete()
+        return redirect('libraryinfo_list')  
+    return redirect('libraryinfo_list')
+
+@csrf_exempt
+def libraybooks_list_view(request):
+    library_books = Library_Books.objects.all().order_by('id')
+    return render(request, 'Central_Libary/Library_Books_list.html', {'library_books': library_books})
+
+def libraybooks_create_view(request):
+    if request.method == 'POST':
+        form = Library_Books_Form(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect('librarybooks_list')  
+    else:
+        form = Library_Books_Form()  
+    return render(request, 'Central_Libary/Library_Books_form.html', {'form': form})
+
+def libraybooks_edit_view(request, id):
+    library_book = get_object_or_404(Library_Books, id=id)
+    if request.method == 'POST':
+        form = Library_Books_Form(request.POST, instance=library_book)  
+        if form.is_valid():
+            form.save()
+            return redirect('librarybooks_list')
+    else:
+        form = Library_Books_Form(instance=library_book)
+    return render(request, 'Central_Libary/Library_Books_form.html', {'form': form})
+
+def libraybooks_delete_view(request, id):
+    library_book = get_object_or_404(Library_Books, id=id)
+    if request.method == 'POST':
+        library_book.delete()
+        return redirect('librarybooks_list')  
+    return redirect('librarybooks_list')
+
+@login_required
+# View to handle file upload
+def committees_view(request):
+    if request.method == 'POST':
+        form = CommitteesForm(request.POST, request.FILES)
+        if form.is_valid():
+            form.save()
+            return redirect('committees_list')
+    else:
+        form = CommitteesForm()
+    return render(request, 'Committees/committees_file_upload.html', {'form': form})
+
+@login_required
+# View to list uploaded files
+def committees_list_view(request):
+    files_list = Committees.objects.all()  # Fetch all files
+    return render(request, 'Committees/committees_list.html', {'files_list': files_list})  # Pass the files to the template
+
+@login_required
+# View to handle file update
+def committees_update_view(request, pk):
+    file_obj = get_object_or_404(Committees, pk=pk)
+    if request.method == 'POST':
+        form = CommitteesForm(request.POST, request.FILES, instance=file_obj)
+        if form.is_valid():
+            form.save()
+            return redirect('committees_list')
+    else:
+        form = CommitteesForm(instance=file_obj)
+    return render(request, 'Committees/committees_file_upload.html', {'form': form})
+
+@login_required
+# View to handle file delete
+def committees_delete_view(request, pk):
+    file_obj = get_object_or_404(Committees, pk=pk)
+    file_obj.delete()
+    return redirect('committees_list')
+
+
+@login_required
+# View to list uploaded files
+def mba_faculty_Images_list_view(request):
+    mba_faculty = Mba_Faculty_Images.objects.all()  # Fetch all files
+    return render(request, 'Faculty_Page/Mba_Faculty_image_list.html', {'mba_faculty': mba_faculty})  # Pass the files to the template
+
+@login_required
+# View to handle file upload
+def mba_faculty_Images_create_view(request):
+    if request.method == 'POST':
+        form = Mba_Faculty_Images_Form(request.POST, request.FILES)
+        if form.is_valid():
+            form.save()
+            return redirect('mba_faculty_Images_list')
+    else:
+        form = Mba_Faculty_Images_Form()
+    return render(request, 'Faculty_Page/Mba_Faculty_image_form.html', {'form': form})
+
+
+@login_required
+# View to handle file update
+def mba_faculty_Images_edit_view(request, id):
+    mba_faculty = get_object_or_404(Mba_Faculty_Images, id=id)
+    if request.method == 'POST':
+        form = Mba_Faculty_Images_Form(request.POST, request.FILES, instance=mba_faculty)
+        if form.is_valid():
+            form.save()
+            return redirect('mba_faculty_Images_list')
+    else:
+        form = Mba_Faculty_Images_Form(instance=mba_faculty)
+    return render(request, 'Faculty_Page/Mba_Faculty_image_form.html', {'form': form})
+
+@login_required
+# View to handle file delete
+def mba_faculty_Images_delete_view(request, id):
+    mba_faculty = get_object_or_404(Mba_Faculty_Images, id=id)
+    mba_faculty.delete()
+    return redirect('mba_faculty_Images_list')
 
 @login_required
 @csrf_exempt
@@ -504,8 +794,45 @@ def faculty_pharmacy_delete_view(request, id):
 
 @login_required
 # Gallery Images Views
+def course_Admissions_list_view(request):
+    course_Admissions = Course_Admissions.objects.all().order_by('id')
+    return render(request, 'Course_Admissions/Course_Admissions_list.html', {'course_Admissions': course_Admissions})
+
+@login_required
+def course_Admissions_create_view(request):
+    if request.method == 'POST':
+        form = Course_AdmissionsForm(request.POST, request.FILES)
+        if form.is_valid():
+            form.save()
+            return redirect('course_Admissions_list')
+    else:
+        form = Course_AdmissionsForm()
+    return render(request, 'Course_Admissions/Course_Admissions_form.html', {'form': form})
+
+@login_required
+def course_Admissions_edit_view(request, id):
+    course_Admissions = get_object_or_404(Course_Admissions, id=id)
+    if request.method == 'POST':
+        form = Course_AdmissionsForm(request.POST, request.FILES, instance=course_Admissions)
+        if form.is_valid():
+            form.save()
+            return redirect('course_Admissions_list')
+    else:
+        form = Course_AdmissionsForm(instance=course_Admissions)
+    return render(request, 'Course_Admissions/Course_Admissions_form.html', {'form': form})
+
+@login_required
+def course_Admissions_delete_view(request, id):
+    image = get_object_or_404(Course_Admissions, id=id)
+    if request.method == 'POST':
+        image.delete()
+        return redirect('course_Admissions_list')
+    return redirect('course_Admissions_list')
+
+@login_required
+# Gallery Images Views
 def gallery_image_list(request):
-    gallery_images = GalleryImages.objects.all().order_by('id')
+    gallery_images = GalleryImages.objects.all().order_by('-id')
     return render(request, 'Gallery_Page/gallery_images_list.html', {'gallery_images': gallery_images})
 
 @login_required
@@ -575,49 +902,10 @@ def gallery_video_delete(request, pk):
         return redirect('gallery_videos_list')
     return redirect('gallery_videos_list')
 
-@login_required
-def alumni_list(request):
-    # Retrieve all alumni entries ordered by ID
-    alumni_list = Alumni.objects.all().order_by('id')
-    return render(request, 'Alumni_Page/Alumni_list.html', {'alumni_list': alumni_list})
-
-@login_required
-def alumni_create(request):
-    # Create a new alumni entry
-    if request.method == 'POST':
-        form = AlumniForm(request.POST, request.FILES)
-        if form.is_valid():
-            form.save()
-            return redirect('alumni_list')
-    else:
-        form = AlumniForm()
-    return render(request, 'Alumni_Page/Alumni_Form.html', {'form': form})
-
-@login_required
-def alumni_edit(request, pk):
-    # Edit an existing alumni entry
-    alumni = get_object_or_404(Alumni, pk=pk)
-    if request.method == 'POST':
-        form = AlumniForm(request.POST, request.FILES, instance=alumni)
-        if form.is_valid():
-            form.save()
-            return redirect('alumni_list')
-    else:
-        form = AlumniForm(instance=alumni)
-    return render(request, 'Alumni_Page/Alumni_Form.html', {'form': form})
-
-@login_required
-def alumni_delete(request, pk):
-    # Delete an existing alumni entry
-    alumni = get_object_or_404(Alumni, pk=pk)
-    if request.method == 'POST':
-        alumni.delete()
-        return redirect('alumni_list')
-    return redirect('alumni_list')
 
 @login_required
 def events_list(request):
-    events_list = EventsandActivites.objects.all().order_by('id')
+    events_list = EventsandActivites.objects.all().order_by('-id')
     return render(request, 'Event_and_Activites_page/Events_and_Activites_list.html', {'events_list': events_list})
 
 @login_required
@@ -692,7 +980,7 @@ def send_registration_email(request):
                 subject="Student Registration Details",
                 body=message,
                 from_email=email,
-                to=["cvamshikrishna9381@gmail.com"],
+                to=["vamshikrishnachandra@gmail.com"],
             )
 
             # Attach the uploaded file, if any
@@ -709,83 +997,6 @@ def send_registration_email(request):
 
     return JsonResponse({"status": "error", "message": "Invalid request method"}, status=405)
 
-@login_required
-# View to handle file upload
-def committees_view(request):
-    if request.method == 'POST':
-        form = CommitteesForm(request.POST, request.FILES)
-        if form.is_valid():
-            form.save()
-            return redirect('committees_list')
-    else:
-        form = CommitteesForm()
-    return render(request, 'Committees/committees_file_upload.html', {'form': form})
-
-@login_required
-# View to list uploaded files
-def committees_list_view(request):
-    files_list = Committees.objects.all()  # Fetch all files
-    return render(request, 'Committees/committees_list.html', {'files_list': files_list})  # Pass the files to the template
-
-@login_required
-# View to handle file update
-def committees_update_view(request, pk):
-    file_obj = get_object_or_404(Committees, pk=pk)
-    if request.method == 'POST':
-        form = CommitteesForm(request.POST, request.FILES, instance=file_obj)
-        if form.is_valid():
-            form.save()
-            return redirect('committees_list')
-    else:
-        form = CommitteesForm(instance=file_obj)
-    return render(request, 'Committees/committees_file_upload.html', {'form': form})
-
-@login_required
-# View to handle file delete
-def committees_delete_view(request, pk):
-    file_obj = get_object_or_404(Committees, pk=pk)
-    file_obj.delete()
-    return redirect('committees_list')
-
-
-@login_required
-# View to handle file upload
-def syllabus_view(request):
-    if request.method == 'POST':
-        form = SyllabusForm(request.POST, request.FILES)
-        if form.is_valid():
-            form.save()
-            return redirect('syllabus_list')
-    else:
-        form = SyllabusForm()
-    return render(request, 'Syllabus/syllabus_file_upload.html', {'form': form})
-
-@login_required
-# View to list uploaded files
-def syllabus_list_view(request):
-    files_list = Syllabus.objects.all()  # Fetch all files
-    return render(request, 'Syllabus/syllabus_list.html', {'files_list': files_list})  # Pass the files to the template
-
-@login_required
-# View to handle file update
-def syllabus_update_view(request, pk):
-    file_obj = get_object_or_404(Syllabus, pk=pk)
-    if request.method == 'POST':
-        form = SyllabusForm(request.POST, request.FILES, instance=file_obj)
-        if form.is_valid():
-            form.save()
-            return redirect('syllabus_list')
-    else:
-        form = SyllabusForm(instance=file_obj)
-    return render(request, 'Syllabus/syllabus_file_upload.html', {'form': form})
-
-@login_required
-# View to handle file delete
-def syllabus_delete_view(request, pk):
-    file_obj = get_object_or_404(Syllabus, pk=pk)
-    file_obj.delete()
-    return redirect('syllabus_list')
- 
 class BannerViewSet(viewsets.ReadOnlyModelViewSet):
     permission_classes = [IsAuthenticated]
     queryset = Banner.objects.all().order_by('id')
@@ -812,26 +1023,49 @@ class ProgramsCountViewSet(viewsets.ReadOnlyModelViewSet):
     permission_classes = [IsAuthenticated]
     queryset = ProgramsCount.objects.all().order_by('id')
     serializer_class = ProgramsCountSerializer
+    
+class ImportantSitesViewSet(viewsets.ReadOnlyModelViewSet):
+    permission_classes = [IsAuthenticated]
+    queryset = ImportantSites.objects.all().order_by('id')
+    serializer_class = ImportantSitesSerializer
    
-
 class StudentFormViewSet(viewsets.ReadOnlyModelViewSet):
     permission_classes = [IsAuthenticated]
     queryset = StudentForm.objects.all().order_by('id')
     serializer_class = StudentFormSerializer
     
-
-class GalleryImagesViewSet(viewsets.ReadOnlyModelViewSet):
+class SyllabusViewSet(viewsets.ReadOnlyModelViewSet):
     permission_classes = [IsAuthenticated]
-    queryset = GalleryImages.objects.all().order_by('id')
-    serializer_class = GalleryImagesSerializer
-    filter_backends = [GalleryImagesfilter]
-
-class GalleryVideosViewSet(viewsets.ReadOnlyModelViewSet):
+    queryset = Syllabus.objects.all().order_by('id')
+    serializer_class = SyllabusSerializer
+    
+class AlumniViewSet(viewsets.ReadOnlyModelViewSet):
     permission_classes = [IsAuthenticated]
-    queryset = GalleryVideos.objects.all().order_by('id')
-    serializer_class = GalleryVideosSerializer
-    filter_backends = [GalleryVideosfilter]
+    queryset = Alumni.objects.all().order_by('id')
+    serializer_class = AlumniSerializer
+    filter_backends = [DjangoFilterBackend]
+    filterset_class = AlumniFilter  # Use custom filter set
 
+class LibraryInfoViewSet(viewsets.ReadOnlyModelViewSet):
+    permission_classes = [IsAuthenticated]
+    queryset = LibraryInfo.objects.all().order_by('id')
+    serializer_class = LibraryInfoSerializer
+    
+class Library_BooksViewSet(viewsets.ReadOnlyModelViewSet):
+    permission_classes = [IsAuthenticated]
+    queryset = Library_Books.objects.all().order_by('id')
+    serializer_class = Library_BooksSerializer
+
+class CommitteesViewSet(viewsets.ReadOnlyModelViewSet):
+    permission_classes = [IsAuthenticated]
+    queryset = Committees.objects.all().order_by('id')
+    serializer_class = CommitteesSerializer
+    
+class Mba_Faculty_ImagesViewSet(viewsets.ReadOnlyModelViewSet):
+    permission_classes = [IsAuthenticated]
+    queryset = Mba_Faculty_Images.objects.all().order_by('id')
+    serializer_class = Mba_Faculty_ImagesSerializer
+ 
 class Faculty_MbaViewSet(viewsets.ReadOnlyModelViewSet):
     permission_classes = [IsAuthenticated]
     queryset = Faculty_Mba.objects.all().order_by('id')
@@ -841,29 +1075,27 @@ class Faculty_MbaViewSet(viewsets.ReadOnlyModelViewSet):
 class Faculty_PharamacyViewSet(viewsets.ReadOnlyModelViewSet):
     permission_classes = [IsAuthenticated]
     queryset = Faculty_Pharamacy.objects.all().order_by('id')
-    serializer_class = Faculty_PharamacySerializer
-   
-
-class AlumniViewSet(viewsets.ReadOnlyModelViewSet):
+    serializer_class = Faculty_PharamacySerializer 
+      
+class Course_AdmissionsViewSet(viewsets.ReadOnlyModelViewSet):
     permission_classes = [IsAuthenticated]
-    queryset = Alumni.objects.all().order_by('id')
-    serializer_class = AlumniSerializer
-    filter_backends = [DjangoFilterBackend]
-    filterset_class = AlumniFilter  # Use custom filter set
+    queryset = Course_Admissions.objects.all().order_by('id')
+    serializer_class = Course_AdmissionsSerializer   
+    
+class GalleryImagesViewSet(viewsets.ReadOnlyModelViewSet):
+    permission_classes = [IsAuthenticated]
+    queryset = GalleryImages.objects.all().order_by('-id')
+    serializer_class = GalleryImagesSerializer
+    filter_backends = [GalleryImagesfilter]
+
+class GalleryVideosViewSet(viewsets.ReadOnlyModelViewSet):
+    permission_classes = [IsAuthenticated]
+    queryset = GalleryVideos.objects.all().order_by('id')
+    serializer_class = GalleryVideosSerializer
+    filter_backends = [GalleryVideosfilter]
 
 class EventsandActivitesViewSet(viewsets.ReadOnlyModelViewSet):
     permission_classes = [IsAuthenticated]
-    queryset = EventsandActivites.objects.all().order_by('id')
+    queryset = EventsandActivites.objects.all().order_by('-id')
     serializer_class = EventsandActivitesSerializer
     filter_backends = [EventsandActivitesfilter]
-
-class CommitteesViewSet(viewsets.ReadOnlyModelViewSet):
-    permission_classes = [IsAuthenticated]
-    queryset = Committees.objects.all().order_by('id')
-    serializer_class = CommitteesSerializer
-
-
-class SyllabusViewSet(viewsets.ReadOnlyModelViewSet):
-    permission_classes = [IsAuthenticated]
-    queryset = Syllabus.objects.all().order_by('id')
-    serializer_class = SyllabusSerializer
